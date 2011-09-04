@@ -1,0 +1,86 @@
+
+#BITWISE fields for toggling the font.
+BOLD = 1
+ITALIC = 2
+
+  #Format: font: [ 'normal name', 'Bold name', 'italic name', 'italicbold name'
+fonts = {
+  'courier': [ 'Courier', 'Courier-Bold', 'Courier-Oblique', 'Courier-BoldOblique'],
+  'helvetica': [ 'Helvetica', 'Helvetica-Bold', 'Helvetica-Oblique', 'Helvetica-BoldOblique'],
+  'symbol': ['Symbol'],
+  'times' : [ 'Times-Roman', 'Times-Bold', 'Times-Italic', 'Times-BoldItalic' ],
+  'dingbat': [ 'ZapfDingbats' ]
+}
+
+class Point:
+  """Tracks x and y coordinates"""
+  x = 0
+  y = 0
+  saved = []
+
+  def __init__(self,x=0,y=0):
+    self.x = x
+    self.y = y
+    self.saved = []
+
+  def set(self, x=None, y=None, p=None):
+    """Set x and y coords. P if used is a tuple (x,y) as returned by a previous call to get."""
+    if x is not None: self.x = x
+    if y is not None: self.y = y
+    if
+  
+  def get(self):
+    """Returns a tuple of current position: (x,y)"""
+    return (self.x, self.y)
+
+  def save(self):
+    """Saves the current location(pushes to the internal stack"""
+    self.saved.append((self.x, self.y))
+
+  def restore(self):
+    """Restores the current location from the internal stack. 
+       Raises IndexError if stack is empty
+    """
+    try:
+      p = self.saved.pop()
+      self.x , self.y = p
+    except IndexError:
+      raise IndexError("There are no saved locations to restore")
+
+class FontTracker:
+  """Handle fonts, sizes italic etc."""
+  italic = False
+  bold = False
+  size = 12
+  fontname = "courier"
+
+  def __init__(self, **args):
+    for k in args.keys():
+      setattr(self, k, args[k])
+    self.fonts = fonts[self.fontname]
+  
+  def set(self, bold=None, italic=None, fontname=None, size=None):
+    if bold is not None: self.bold = bold
+    if italic is not None: self.italic = italic
+    if fontname is not None: 
+      self.fontname = fontname
+      self.fonts = fonts[fontname]
+    if size is not None: self.size = size
+
+  def getFontName(self):
+    """Name of font to use."""
+    fontnumber = 0
+    if self.italic: fontnumber = fontnumber | ITALIC
+    if self.bold: fontnumber = fontnumber | BOLD
+    return self.fonts[fontnumber]
+
+
+
+
+f= FontTracker(fontname='times', size=10)
+
+
+print dir(f)
+f.set(bold=True, italic=True)
+print f.size, f.getFontName()
+
