@@ -1,4 +1,9 @@
 
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import logging
+
+log = logging.getLogger('root')
 #BITWISE fields for toggling the font.
 BOLD = 1
 ITALIC = 2
@@ -27,7 +32,9 @@ class Point:
     """Set x and y coords. P if used is a tuple (x,y) as returned by a previous call to get."""
     if x is not None: self.x = x
     if y is not None: self.y = y
-    if
+    if isinstance(p, list) or isinstance(p, tuple):
+      self.x = p[0]
+      self.y = p[1]
   
   def get(self):
     """Returns a tuple of current position: (x,y)"""
@@ -53,6 +60,7 @@ class FontTracker:
   bold = False
   size = 12
   fontname = "courier"
+  fileLocator = None
 
   def __init__(self, **args):
     for k in args.keys():
@@ -64,8 +72,22 @@ class FontTracker:
     if italic is not None: self.italic = italic
     if fontname is not None: 
       self.fontname = fontname
+      if not fonts.has_key(fontname):
+        self._loadFont(fontname)
       self.fonts = fonts[fontname]
     if size is not None: self.size = size
+
+  def _loadFont(self, fontname):
+    global fonts
+    if self.fileLocator: 
+      fontfile = self.fileLocator(fontname)
+    else:
+      fontfile = fontname
+    log.debug("TTFont(%s, %s)", fontname, fontfile)
+    font = TTFont(fontname, fontfile)
+    log.debug("Font: %s", font)
+    pdfmetrics.registerFont(font)
+    fonts[fontname] = [ fontname, fontname, fontname, fontname ]  #Use the same font no matter what styles are specified
 
   def getFontName(self):
     """Name of font to use."""
@@ -74,13 +96,9 @@ class FontTracker:
     if self.bold: fontnumber = fontnumber | BOLD
     return self.fonts[fontnumber]
 
-
-
-
-f= FontTracker(fontname='times', size=10)
-
-
-print dir(f)
-f.set(bold=True, italic=True)
-print f.size, f.getFontName()
+if __name__ == "__main__":
+  f= FontTracker(fontname='times', size=10)
+  print dir(f)
+  f.set(bold=True, italic=True)
+  print f.size, f.getFontName()
 
