@@ -1,0 +1,36 @@
+
+                                                                {$PIC("nac.png",158,93)}
+
+{$SETCOLOR(0,1,1)}
+{$SF(18)}National Airways Corporation (Pty) Ltd.{$SF(12)}
+{$SF(8)}Reg No 1945/019919/07                                             VAT Reg. 4090107188{$SF(10)}
+{$SETCOLOR(0,0,0)}
+
+{$SF(10)}10 Point abcdefghijklmno
+{$SF(12)}12 Point abcdefghijklmno
+{$SF(14)}14 Point abcdefghijklmno
+{$SF(16)}16 Point abcdefghijklmno
+{$SF(18)}18 Point abcdefghijklmno
+{$SF(10)}Normal text {$BOLDON}Bold on{$BOLDOFF}{$ITALICON}Italic on{$ITALICOFF}{$BOLDON}{$ITALICON}Italic and BOLD {$BOLDOFF}{$ITALICOFF}
+{$BOXS(5)}                                                          {$L1(2)}
+  {$RBOXS(1)}                                                         .{$PIC("geeks.png",75,100)}
+    22 Acaci Ave
+    Amityville
+    666
+                                                    {$RBOXE(1)}
+  {$LW(0)}{$LINES(0)}                                               {$LINEE(0)}
+
+  {$LW(1)}{$LINES(0)}                                               {$LINEE(0)}
+
+  {$LW(2)}{$LINES(0)}                                               {$LINEE(0)}
+
+  {$LW(3)}{$LINES(0)}                                               {$LINEE(0)}
+
+  {$LW(4)}{$LINES(0)}                                               {$LINEE(0)}
+
+  {$LW(5)}{$LINES(0)}                                               {$LINEE(0)}
+
+  {$LW(6)}{$LINES(0)}                                               {$LINEE(0)}{$LW(1)}
+
+                                                          {$L0(2)}                  {$BOXE(5)}
+

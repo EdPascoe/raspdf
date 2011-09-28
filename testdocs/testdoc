@@ -1,0 +1,54 @@
+{$INCLUDE("nacheader.inc")}
+
+Hello World
+
+{$RBOXS(0)}
+ Motion tests:
+ 5
+ 4
+ 3
+ 2
+ 1
+ 0{$RIGHT(30)}RIGHT30
+ >-----      {$DOWN(3)}  =DOWN 3 {$UP(3)}         =UP 3
+ 0{$RIGHT(10)}RIGHT10
+ 1
+ 2
+ 3
+ 4
+ 5
+ 4
+ 3
+ 2
+ 1
+ 0{$RIGHT(30)}RIGHT30
+ >-----      {$UP(3)}  =UP 3 {$DOWN(3)}         =DOWN 3
+ 0{$RIGHT(10)}RIGHT10
+ 1
+ 2
+ 3
+ 4
+ 5
+  Font Tests
+ {$FONTNAME("somewhereinspace.ttf")}{$SETCOLOR(0,0,0.42)}
+ {$SF(20)}This is the somewhereinspacefont {$SF(12)}
+ {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
+ {$FONTNAME("arialn.ttf")}{$SETCOLOR(0,0,0.42)}
+ {$SF(11)}This is the arial narrow font 11 point{$SF(12)}
+ {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
+ {$FONTNAME("isabella.ttf")}{$SETCOLOR(0,0,0.42)}
+ {$SF(12)}This is the isabella font{$SF(12)}
+{$FONTNAME("courier")}
+ 
+{$RIGHT(80)}{$RBOXE(0)}
+
+
+And this is a picture: {$PIC("geeks.png",150,200)}
+
+{$MA(350,750)}{$RBOXS(1)}
+{$MA(370,780)}{$SF(12)}{$B1}Total:{$B0}{$SF(10)}
+{$MA(500,800)}{$RBOXE(1)}
+{$MA(0,500)}After move absolute
+
+
+
