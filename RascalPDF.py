@@ -20,8 +20,10 @@ Converts rascal reports in this format to a pdf. ALL tags start with "{$"
 from reportlab.pdfgen import canvas
 import reportlab.lib.pagesizes
 from reportlab.platypus.flowables import Image
+from reportlab.lib.units import inch
 from Point import Point, FontTracker
 import logging
+cm = inch/2.54
 
 log = logging.getLogger("root")
 
@@ -41,8 +43,10 @@ class RascalPDF:
   canvas = None
   font_size = 10 #Default font size
   #Margins
-  lmargin = 20
-  tmargin = 20
+  lmargin = 1.5*cm
+  tmargin = 1.5*cm
+  bmargin = 1.5*cm
+  lmarginDefault = None
   line="NOT YET INITITALIZED"
   fileLocator = None
 
@@ -57,7 +61,7 @@ class RascalPDF:
 
     self.fileLocator = fileLocator #function to call for locating files if they are not in current directory
     self.canvas = canvas.Canvas(self.pdffile, pagesize, verbosity=1)
-    self.canvas.setPageCompression(1)
+    self.canvas.setPageCompression(True)
 
     self.info = self.canvas._doc.info #The PDF document info
     self.pagesize = pagesize
@@ -89,8 +93,7 @@ class RascalPDF:
     self.helvetica[cnstBOLD + cnstITALIC] = 'Helvetica-BoldOblique';
     self.__registerkeys()
 
-
-  def fnexec(self, fnname, *params):
+  def fnexec(self, fnname, *params, **kwargs):
     """Lookup fnname in the functions list and execute the given function call."""
     try:
       fn = self.functions[fnname]
@@ -98,10 +101,11 @@ class RascalPDF:
       raise RascalPDFException("Function %s has not been registered" % (fnname))
 
     try:
-      if len(params) == 0:
-        return fn()
-      else:
-        return fn(*params)
+      return fn(*params, **kwargs)
+      #if len(params) == 0:
+      #  return fn()
+      #else:
+      #  return fn(*params)
     except:
       log.error("Failure executing %s(%s)" ,fnname, params)
       raise
@@ -176,6 +180,10 @@ class RascalPDF:
     self.functions["PRINTEND"]= self.printend
     self.functions["LEND"]=     self.textlineend #Called at auto at end of line
 
+    self.functions["LMARGIN"]=   self.setLeftMargin 
+    self.functions["PUSHPOS"]=   self.savePos
+    self.functions["POPPOS"]=   self.restorePos
+
     self.functions["BOLDON"]=  self._regfnFontSetBoldTrue
 # sub{ $fontSTYLE = $fontSTYLE | $cnstBOLD; });
     self.functions["B1"]=  self._regfnFontSetBoldTrue
@@ -240,16 +248,38 @@ class RascalPDF:
     self.pos.x =  self.lmargin; 
 
   def right(self, c): 
-    c= int(c)
-    self.xpos =  self.lmargin + self.calcWidth("_"  * c )
+    c= int(c) -1
+    if c < 0: c = 0
+    self.pos.x =  int(self.lmargin + self.calcWidth("_"  * c ))
+    
+  def setLeftMargin(self, margin=None):
+    """Set the left margin (indent level) in cm for future text. Default is to reset to starting margin."""
+    if self.lmarginDefault is None: self.lmarginDefault = self.lmargin
+    if margin is None: 
+      self.lmargin = self.lmarginDefault
+    else:
+      self.lmargin = float(margin) * cm
+
+  def savePos(self):
+    """Save the current cursor location """
+    self.pos.push()
+
+  def restorePos(self):
+    """"Restore cursor location"""
+    try:
+      self.pos.pop()
+    except IndexError:
+      print >> sys.stderr,  "Could not restore position because nothing has been saved"
+      sys.exit(5)
     
   def moverelative(self, x, y):
     self.pos.x += int(x);
     self.pos.y += int(y);
 
-  def moveabsolute(self, x, y):
-    self.pos.x = int(x);
-    self.pos.y = int(y);
+  def moveabsolute(self, x=None, y=None):
+    """Move to given spot on page. x and y in cm"""
+    if x: self.pos.x = float(x) * cm;
+    if y: self.pos.y = self.pagesize[1] - int(y)* cm;
 
   def printinit(self):
     """Initialize printing system"""
@@ -262,99 +292,46 @@ class RascalPDF:
   def textlineend(self):
     """Called at line end."""
     #log.debug("textlineend")
-    if self.pos.y <= self.font.size:
+    if self.pos.y <= self.font.size + self.bmargin: 
       log.debug("Curent pos %s <= %s, new page", self.pos.y, self.font.size)
       self.newPage()
-      self.pos.y = self.height - self.tmargin
-      #self.print_string(self.line)
-      self.pos.x = self.lmargin
     else:
       self.pos.y -= self.font.size;
       self.pos.x = self.lmargin;
-    
-#    r= re.search(r'(.*?)\cL(.*)', self.line)
-#    if self.pos.y <= self.font.size:
-#      self.newPage()
-#      self.pos.y = self.height - self.tmargin
-#      self.print_string(self.line)
-#      self.pos.x = self.lmargin
-#      self.pos.y -=  self.font.size;
-#    elif r:
-#      if len(r.group(1)) > 0:
-#        self.print_string(r.group(1))
-#      self.newPage();
-#      self.pos.y = self.height - self.tmargin
-#      self.pos.x = self.lmargin
-#      if len(r.group(2)) > 0:
-#        self.print_string(r.group(2))
-#        self.pos.y -=  self.font.size
-#    else:
-#       self.print_string(self.line)
-#       self.pos.y -= self.font.size;
-#       self.pos.x = self.lmargin;
 
   def newline(self):
     """handle \n"""
     self.textlineend() 
 
-  def boxstart(self, boxname):  
+  def boxstart(self, boxname=0):  
     """Remember the posistion of the start of a box."""
     self.boxlist[boxname]= copy(self.pos)
+    log.debug("box start Position: %s", self.pos)
 
-  def  boxend(self, boxname):
+  def  boxend(self, boxname=0):
     if not self.boxlist.has_key(boxname):
       return
     s = self.boxlist[boxname]
     e = self.pos
-    path = self.canvas.beginPath()
-    path.moveTo(s.x, s.y)
-    path.lineTo(e.x, s.y)
-    path.lineTo(e.x, e.y)
-    path.lineTo(s.x, e.y)
-    path.lineTo(s.x, e.y)
-    self.canvas.drawPath(path, stroke=1, fill=1)
+    self.canvas.rect(s.x, e.y, (e.x - s.x), (s.y - e.y), stroke=1, fill=0)
 
-  def boxendround(self, boxname, offset=8):
+    log.debug("box end Position: %s", e)
+
+  def boxendround(self, boxname=0):
     """Complete a box with rounded corners"""
     if not self.boxlist.has_key(boxname): return
 
     s = self.boxlist[boxname]
     e = self.pos
-
-    path = self.canvas.beginPath()
-    #Top
-    path.moveTo(s.x+offset,s.y);  
-    path.lineTo(e.x-offset,s.y);
-
-    #Top Right Corner
-    path.moveTo(e.x-offset,s.y);
-    path.curveTo(e.x,s.y,e.x,s.y-offset,e.x,s.y-offset);
-
-    #Right
-    path.moveTo(e.x,s.y-offset); 
-    path.lineTo(e.x,e.y+offset);
-
-    #Bottom Right corner
-    path.curveTo(e.x,e.y,e.x-offset,e.y,e.x-offset,e.y);
-
-    #Bottom
-    path.lineTo(s.x+offset,e.y);
-
-    #Bottom Left Corner
-    path.curveTo(s.x,e.y,s.x,e.y+offset,s.x,e.y+offset);
-
-    #Left
-    path.lineTo(s.x,s.y-offset);
-
-    #Top Left Corner
-    path.curveTo(s.x,s.y,s.x+offset,s.y,s.x+offset,s.y);
-
-    self.canvas.drawPath(path, stroke=1, fill=1)
+    log.debug("boxendround end box from %s to %s", s, e)
+    u = inch/10.0 
+    self.canvas.roundRect(s.x, e.y, (e.x - s.x), (s.y - e.y), 1.5*u, stroke=1, fill=0)
+    return
   
-  def linestart(self, linename):  #Remember the posistion of the start of a line.
+  def linestart(self, linename=0):  #Remember the posistion of the start of a line.
     self.linelist[linename] = deepcopy(self.pos)
 
-  def lineend(self, linename):
+  def lineend(self, linename=0):
     s= self.linelist.get(linename, None)
     if s is None: return
     x1 = s.x
@@ -381,7 +358,7 @@ class RascalPDF:
     r = re.search(r'(.*?)\cL(.*)', line)
     if self.pos.y <= self.font.size:
       self.newPage();
-      self.pos.y = self.height - self.tmargin
+      self.pos.y = self.font.size - self.tmargin
       self.print_string(line)
       self.pos.x = self.lmargin
       self.pos.y -= self.font.size
@@ -389,7 +366,7 @@ class RascalPDF:
     elif r: #Form Feed
       self.print_string(r.group(1));
       self.newPage();
-      self.pos.y = self.height - self.tmargin
+      self.pos.y = self.font.size - self.tmargin
       self.pos.x = self.lmargin
       self.print_string(r.group(2))
       self.pos.y - self.fint.szie
@@ -406,16 +383,19 @@ class RascalPDF:
   def newPage(self):
     """Set the flag so that the next write to the screen will create a new page"""
     self.start_newpage = 1
-    self.pos.set(x=0, y=self.lmargin)
+    self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
+    log.debug("newPage %s", self.pos)
+    self.canvas.showPage()
 
   def real_newPage(self):
     """This does the real newpage
     """
     self.start_newpage = 0;
     if (self.printingbegun):
+     log.debug("real_newPage")
      self.canvas.showPage()
     else:
-     self.printingbegun=1;
+     self.printingbegun=True;
 
   def calcTextWidth(self, line):
     return self.caclWidth(line);
@@ -437,7 +417,7 @@ lines is a list of all the lines of your paragraph, if you know the line spacing
 height of the paragraph can be calculated as lineSpacing*len(lines) 
 
     """
-    return stringWidth(text, self.font.getFontName(), self.font.size) 
+    return int(stringWidth(text, self.font.getFontName(), self.font.size))
 
   def useFont(self, textobject, font):
     textobject.setFont("Helvetica-Oblique", 14)
@@ -446,9 +426,8 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
     """Prints string on page at current cursor location."""
     textobject = self.canvas.beginText()
     self.canvas.setFont(self.font.getFontName(), self.font.size) 
-    #log.debug(" self.canvas.drawText(%s, %s, %s)", self.pos.x, self.pos.y, msg)
+    log.debug(" self.canvas.drawText%s, %s)", self.pos, msg)
     self.canvas.drawString(self.pos.x, self.pos.y, msg)
- 
 
   def picture(self, fname, imgwidth=None, imgheight=None):
     """Insert picture into pdf. If imgwidth and imgheight are not none they will be used to reposition the cursor after the insert."""
@@ -465,12 +444,6 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
     if not os.path.exists(fname):
       raise RascalPDFException("Unable to location file %s" % (fname))
     self.canvas.drawImage(fname, x, y, imgwidth, imgheight)
-
-  def pixels2Points(self, pixels):
-    """returns the number of points taken up by given number of pixels
-       1 point is 1/72 of an inch
-    """
-
 
 class _Parser:
   """Contains the print job broken into an array of python function calls.
@@ -584,11 +557,29 @@ class PrintJob:
     for cmd in  self.parser.cmdlist:
       fncall = cmd[0]
       if len(cmd) > 1:
-        params = cmd[1:]
-        self.rascalpdf.fnexec(fncall, *params)
+        params, kwargs = self.__args2kw(cmd[1:])
+        self.rascalpdf.fnexec(fncall, *params, **kwargs)
       else:
         self.rascalpdf.fnexec(fncall)
+    log.debug("_2ndParse showPage")
     self.rascalpdf.canvas.showPage()
+
+  def __args2kw(self, params):
+    """For converting the xxpdf format parameters to arguments. 
+       Converts params to a a tuple: (<array of non kw args>, <dict of kw args>)
+    """
+    args = []
+    kw = {}
+    for p in params:
+      p = str(p)
+      equalpos = p.find("=")
+      if equalpos == -1:
+        args.append(p)
+      else:
+        k = p[:equalpos]
+        v = p[equalpos+1:]
+        kw[k.strip()] = v.strip()
+    return (args, kw)
 
   def fileLocator(self, image):
     """Search  self.imagedirs for the image or file to include"""

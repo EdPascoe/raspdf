@@ -1,34 +1,39 @@
 {$INCLUDE("nacheader.inc")}
 
-Hello World
+{$L1}{$RIGHT(71)}{$L0}
+1234567890123456789012345678901234567890123456789012345678901234567890
+         1         2         3         4         5         6         7
+{$L1}{$RIGHT(71)}{$L0}
+{$RIGHT(50)}* RIGHT 50  {$RIGHT(20)}* RIGHT 20
+{$PUSHPOS}
+{$LMARGIN(15)}
+{$RBOXS}{$LMARGIN(15.1)}
+Left margin set to 15.1
+Some text
+Some more text
+                        {$RBOXE}
+{$LMARGIN}
+{$POPPOS}
+Left margin reset to default.
+This text was actually placed after the 
+box margin text.
+There is no RMARGIN command yet so 
+right margins have to checked by hand.
 
-{$RBOXS(0)}
+
+
+
+{$RBOXS(1)}
  Motion tests:
  5
  4
  3
  2
  1
- 0{$RIGHT(30)}RIGHT30
- >-----      {$DOWN(3)}  =DOWN 3 {$UP(3)}         =UP 3
+ 0{$RIGHT(30)}(1)RIGHT30
+ {$DOWN(3)}(2)DOWN 3 {$UP(3)}         (3)Up 3
+
  0{$RIGHT(10)}RIGHT10
- 1
- 2
- 3
- 4
- 5
- 4
- 3
- 2
- 1
- 0{$RIGHT(30)}RIGHT30
- >-----      {$UP(3)}  =UP 3 {$DOWN(3)}         =DOWN 3
- 0{$RIGHT(10)}RIGHT10
- 1
- 2
- 3
- 4
- 5
   Font Tests
  {$FONTNAME("somewhereinspace.ttf")}{$SETCOLOR(0,0,0.42)}
  {$SF(20)}This is the somewhereinspacefont {$SF(12)}
@@ -38,17 +43,516 @@ Hello World
  {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
  {$FONTNAME("isabella.ttf")}{$SETCOLOR(0,0,0.42)}
  {$SF(12)}This is the isabella font{$SF(12)}
-{$FONTNAME("courier")}
- 
-{$RIGHT(80)}{$RBOXE(0)}
+{$FONTNAME("courier")}{$SF(12)}
+{$RIGHT(70)}{$RBOXE(1)}
 
+{$PUSHPOS}
+{$MA(x=19)}19cm >|
+{$MA(x=20)}*
+{$MA(y=10)}*10 cm from top.
+{$POPPOS}
 
 And this is a picture: {$PIC("geeks.png",150,200)}
+{$PUSHPOS}
+{$MA(5,5)}* This is 5cm, 5cm from top left corner
 
-{$MA(350,750)}{$RBOXS(1)}
-{$MA(370,780)}{$SF(12)}{$B1}Total:{$B0}{$SF(10)}
-{$MA(500,800)}{$RBOXE(1)}
-{$MA(0,500)}After move absolute
-
-
-
+{$POPPOS}
+Position restored.
+{$NEWPAGE}
+1 {$B1}{$SF(16)}From the Canterbury Tales by Geoffrey Chaucer{$SF(12)}{$B0}
+2 
+3 {$B1}The Wife of Bath's Tale{$B0}
+4 
+5 Heere bigynneth the Tale of the Wyf of Bathe.
+6 
+7 In th'olde dayes of the Kyng Arthour,
+8 Of which that Britons speken greet honour,
+9 
+10 All was this land fulfild of fayerye.
+11 The elf-queene, with hir joly compaignye,
+12 Daunced ful ofte in many a grene mede.
+13 This was the olde opinion, as I rede;
+14 I speke of manye hundred yeres ago.
+15 
+16 But now kan no man se none elves mo,
+17 For now the grete charitee and prayeres
+18 Of lymytours and othere hooly freres,
+19 That serchen every lond and every streem,
+20 As thikke as motes in the sonne-beem,
+21 
+22 Blessynge halles, chambres, kichenes, boures,
+23 Citees, burghes, castels, hye toures,
+24 Thropes, bernes, shipnes, dayeryes,
+25 This maketh that ther been no fayeryes.
+26 For ther as wont to walken was an elf,
+27 
+28 Ther walketh now the lymytour hymself
+29 In undermeles and in morwenynges,
+30 And seyth his matyns and his hooly thynges
+31 As he gooth in his lymytacioun.
+32 Wommen may go saufly up and doun.
+33 
+34 In every bussh or under every tree
+35 Ther is noon oother incubus but he,
+36 And he ne wol doon hem but dishonour.
+37 And so bifel it that this kyng Arthour
+38 Hadde in his hous a lusty bacheler,
+39 
+40 That on a day cam ridynge fro ryver;
+41 And happed that, allone as she was born,
+42 He saugh a mayde walkynge hym biforn,
+43 Of whiche mayde anon, maugree hir heed,
+44 By verray force he rafte hir maydenhed;
+45 
+46 For which oppressioun was swich clamour
+47 And swich pursute unto the kyng Arthour,
+48 That dampned was this knyght for to be deed,
+49 By cours of lawe, and sholde han lost his heed -
+50 Paraventure, swich was the statut tho -
+51 
+52 But that the queene and othere ladyes mo
+53 So longe preyeden the kyng of grace,
+54 Til he his lyf hym graunted in the place,
+55 And yaf hym to the queene al at hir wille,
+56 To chese wheither she wolde hym save or spille.
+57 
+58 The queene thanketh the kyng with al hir myght,
+59 And after this thus spak she to the knyght,
+60 Whan that she saugh hir tyme, upon a day,
+61 "Thou standest yet," quod she, "in swich array
+62 That of thy lyf yet hastow no suretee.
+63 
+64 I grante thee lyf, if thou kanst tellen me
+65 What thyng is it that wommen moost desiren.
+66 Be war and keep thy nekke-boon from iren!
+67 And if thou kanst nat tellen it anon,
+68 Yet shal I yeve thee leve for to gon
+69 
+70 A twelf-month and a day to seche and leere
+71 An answere suffisant in this mateere;
+72 And suretee wol I han, er that thou pace,
+73 Thy body for to yelden in this place."
+74 Wo was this knyght, and sorwefully he siketh;
+75 
+76 But what! He may nat do al as hym liketh.
+77 And at the laste he chees hym for to wende,
+78 And come agayn right at the yeres ende,
+79 With swich answere as God wolde hym purveye;
+80 And taketh his leve, and wendeth forth his weye.
+81 
+82 He seketh every hous and every place
+83 Where as he hopeth for to fynde grace
+84 To lerne what thyng wommen loven moost;
+85 But he ne koude arryven in no coost
+86 Wher as he myghte fynde in this mateere
+87 
+88 Two creatures accordynge in-feere.
+89 Somme seyde, wommen loven best richesse,
+90 Somme seyde honour, somme seyde jolynesse,
+91 Somme riche array, somme seyden lust abedde,
+92 And oftetyme to be wydwe and wedde.
+93 
+94 Somme seyde, that oure hertes been moost esed
+95 Whan that we been yflatered and yplesed.
+96 He gooth ful ny the sothe, I wol nat lye,
+97 A man shal wynne us best with flaterye;
+98 And with attendance and with bisynesse
+99 
+100 Been we ylymed, bothe moore and lesse.
+101 And somme seyen, how that we loven best
+102 For to be free, and do right as us lest,
+103 And that no man repreve us of oure vice,
+104 But seye that we be wise, and nothyng nyce.
+105 
+106 For trewely, ther is noon of us alle,
+107 If any wight wol clawe us on the galle,
+108 That we nel kike; for he seith us sooth;
+109 Assay, and he shal fynde it that so dooth.
+110 For, be we never so vicious withinne,
+111 
+112 We sol been holden wise, and clene of synne.
+113 And somme seyn, that greet delit han we
+114 For to been holden stable and eek secree,
+115 And in o purpos stedefastly to dwelle,
+116 And nat biwreye thyng that men us telle.
+117 
+118 But that tale is nat worth a rake-stele,
+119 Pardee, we wommen konne no thyng hele.
+120 Witnesse on Myda, - wol ye heere the tale?
+121 Ovyde, amonges othere thynges smale,
+122 Seyde, Myda hadde under his longe heres
+123 
+124 Growynge upon his heed two asses eres,
+125 The whiche vice he hydde, as he best myghte,
+126 Ful subtilly from every mannes sighte,
+127 That, save his wyf, ther wiste of it namo.
+128 He loved hire moost and trusted hir also;
+129 
+130 He preyede hire, that to no creature
+131 She sholde tellen of his disfigure.
+132 She swoor him nay, for al this world to wynne,
+133 She nolde do that vileynye or synne,
+134 To make hir housbonde han so foul a name.
+135 
+136 She nolde nat telle it for hir owene shame.
+137 But nathelees, hir thoughte that she dyde,
+138 That she so longe sholde a conseil hyde;
+139 Hir thoughte it swal so soore aboute hir herte
+140 That nedely som word hir moste asterte;
+141 
+142 And sith she dorste telle it to no man,
+143 Doun to a mareys faste by she ran,
+144 Til she cam there, hir herte was a fyre,
+145 And as a bitore bombleth in the myre,
+146 She leyde hir mouth unto the water doun:
+147 
+148 "Biwreye me nat, thou water, with thy soun,"
+149 Quod she, "to thee I telle it and namo,
+150 Myn housbonde hath longe asses erys two!
+151 Now is myn herte al hool, now is it oute.
+152 I myghte no lenger kepe it, out of doute."
+153 
+154 Heere may ye se, thogh we a tyme abyde,
+155 Yet out it moot, we kan no conseil hyde.
+156 The remenant of the tale, if ye wol heere,
+157 Redeth Ovyde, and ther ye may it leere.
+158 This knyght, of which my tale is specially,
+159 
+160 Whan that he saugh he myghte nat come therby,
+161 This is to seye, what wommen love moost,
+162 Withinne his brest ful sorweful was the goost.
+163 But hoom he gooth, he myghte nat sojourne;
+164 The day was come that homward moste he tourne.
+165 
+166 And in his wey it happed hym to ryde,
+167 In al this care under a forest syde,
+168 Wher as he saugh upon a daunce go
+169 Of ladyes foure and twenty, and yet mo;
+170 Toward the whiche daunce he drow ful yerne,
+171 
+172 In hope that som wysdom sholde he lerne.
+173 But certeinly, er he came fully there,
+174 Vanysshed was this daunce, he nyste where.
+175 No creature saugh he that bar lyf,
+176 Save on the grene he saugh sittynge a wyf -
+177 
+178 A fouler wight ther may no man devyse.
+179 Agayn the knyght this olde wyf gan ryse,
+180 And seyde, "Sire knyght, heer forth ne lith no wey.
+181 Tel me what that ye seken, by your fey!
+182 Paraventure it may the bettre be,
+183 
+184 Thise olde folk kan muchel thyng," quod she.
+185 "My leeve mooder," quod this knyght, "certeyn
+186 I nam but deed, but if that I kan seyn
+187 What thyng it is, that wommen moost desire.
+188 Koude ye me wisse, I wolde wel quite youre hire."
+189 
+190 "Plight me thy trouthe, heere in myn hand," quod she,
+191 "The nexte thyng that I requere thee,
+192 Thou shalt it do, if it lye in thy myght,
+193 And I wol telle it yow, er it be nyght."
+194 "Have heer my trouthe," quod the knyght, "I grante."
+195 
+196 "Thanne," quod she, "I dar me wel avante
+197 Thy lyf is sauf; for I wol stonde therby,
+198 Upon my lyf, the queene wol seye as I.
+199 Lat se which is the proudeste of hem alle,
+200 That wereth on a coverchief or a calle,
+201 
+202 That dar seye nay of that I shal thee teche.
+203 Lat us go forth withouten lenger speche."
+204 Tho rowned she a pistel in his ere,
+205 And bad hym to be glad and have no fere.
+206 Whan they be comen to the court, this knyght
+207 
+208 Seyde he had holde his day, as he hadde hight,
+209 And redy was his answere, as he sayde.
+210 Ful many a noble wyf, and many a mayde,
+211 And many a wydwe, for that they been wise,
+212 The queene hirself sittynge as a justise,
+213 
+214 Assembled been, his answere for to heere;
+215 And afterward this knyght was bode appeere.
+216 To every wight comanded was silence,
+217 And that the knyght sholde telle in audience
+218 What thyng that worldly wommen loven best.
+219 
+220 This knyght ne stood nat stille as doth a best,
+221 But ot his questioun anon answerde
+222 With manly voys, that al the court it herde:
+223 "My lige lady, generally," quod he,
+224 "Wommen desiren to have sovereynetee
+225 
+226 As wel over hir housbond as hir love,
+227 And for to been in maistrie hym above.
+228 This is youre mooste desir, thogh ye me kille.
+229 Dooth as yow list, I am heer at youre wille."
+230 In al the court ne was ther wyf, ne mayde,
+231 
+232 Ne wydwe, that contraried that he sayde,
+233 But seyden he was worthy han his lyf.
+234 And with that word up stirte the olde wyf,
+235 Which that the knyght saugh sittynge in the grene.
+236 "Mercy," quod she, "my sovereyn lady queene,
+237 
+238 Er that youre court departe, do me right.
+239 I taughte this answere unto the knyght,
+240 For which he plighte me his trouthe there,
+241 The firste thyng I wolde of hym requere,
+242 He wolde it do, if it lay in his myght.
+243 
+244 Bifor the court thanne preye I thee, sir knyght,"
+245 Quod she, "that thou me take unto thy wyf,
+246 For wel thou woost that I have kept thy lyf.
+247 If I seye fals, sey nay, upon thy fey!"
+248 This knyght answerde, "Allas and weylawey!
+249 
+250 I woot right wel that swich was my biheste!
+251 For Goddes love, as chees a newe requeste!
+252 Taak al my good, and lat my body go!"
+253 "Nay, thanne," quod she, "I shrewe us bothe two!
+254 For thogh that I be foul, and oold, and poore,
+255 
+256 I nolde for al the metal, ne for oore,
+257 That under erthe is grave, or lith above,
+258 But if thy wyf I were, and eek thy love."
+259 "My love?" quod he, "nay, my dampnacioun!
+260 Allas, that any of my nacioun
+261 
+262 Sholde evere so foule disparaged be!"
+263 But al for noght, the ende is this, that he
+264 Constreyned was, he nedes moste hir wedde;
+265 And taketh his olde wyf, and gooth to bedde.
+266 Now wolden som men seye, paraventure,
+267 
+268 That for my necligence I do no cure
+269 To tellen yow the joye and al th'array,
+270 That at the feeste was that ilke day;
+271 To whiche thyng shortly answere I shal:
+272 I seye, ther nas no joye ne feeste at al;
+273 
+274 Ther nas but hevynesse and muche sorwe.
+275 For prively he wedde hir on a morwe,
+276 And al day after hidde hym as an owle,
+277 So wo was hym, his wyf looked so foule.
+278 Greet was the wo the knyght hadde in his thoght,
+279 
+280 Whan he was with his wyf abedde ybroght;
+281 He walweth and he turneth to and fro.
+282 His olde wyf lay smylynge everemo,
+283 And seyde, "O deere housbonde, benedicitee,
+284 Fareth every knyght thus with his wyf, as ye?
+285 
+286 Is this the lawe of Kyng Arthures hous?
+287 Is every knyght of his so dangerous?
+288 I am youre owene love and youre wyf;
+289 I am she which that saved hath youre lyf.
+290 And certes, yet dide I yow nevere unright;
+291 
+292 Why fare ye thus with me this firste nyght?
+293 Ye faren lyk a man had lost his wit.
+294 What is my gilt? For Goddes love, tel it,
+295 And it shal been amended, if I may."
+296 "Amended," quod this knyght, "allas! nay! nay!
+297 
+298 It wol nat been amended nevere mo;
+299 Thou art so loothly and so oold also,
+300 And therto comen of so lough a kynde,
+301 That litel wonder is thogh I walwe and wynde.
+302 So wolde God, myn herte wolde breste!"
+303 
+304 "Is this," quod she, "the cause of youre unreste?"
+305 "Ye certeinly," quod he, "no wonder is!"
+306 "Now, sire," quod she, "I koude amende al this,
+307 If that me liste, er it were dayes thre,
+308 So wel ye myghte bere yow unto me.
+309 
+310 But for ye speken of swich gentillesse
+311 As is descended out of old richesse,
+312 That therfore sholden ye be gentil men,
+313 Swich arrogance nis nat worth an hen.
+314 Looke who that is moost vertuous alway,
+315 
+316 Pryvee and apert, and moost entendeth ay
+317 To do the gentil dedes that he kan,
+318 Taak hym for the grettest gentil man.
+319 Crist wole we clayme of hym oure gentillesse,
+320 Nat of oure eldres for hire old richesse.
+321 
+322 For thogh they yeve us al hir heritage,
+323 For which we clayme to been of heigh parage,
+324 Yet may they nat biquethe, for no thyng
+325 To noon of us hir vertuous lyvyng,
+326 That made hem gentil men ycalled be,
+327 
+328 And bad us folwen hem in swich degree.
+329 Wel kan the wise poete of Florence,
+330 That highte Dant, speken in this sentence.
+331 Lo in swich maner rym is Dantes tale:
+332 `Ful selde upriseth by his branches smale
+333 
+334 Prowesse of man, for God of his goodnesse,
+335 Wole, that of hym we clayme oure gentillesse.'
+336 For of oure eldres may we no thyng clayme
+337 But temporel thyng, that man may hurte and mayme.
+338 Eek every wight woot this as wel as I,
+339 
+340 If gentillesse were planted natureelly
+341 Unto a certeyn lynage doun the lyne,
+342 Pryvee nor apert, thanne wolde they nevere fyne
+343 To doon of gentillesse the faire office,
+344 They myghte do no vileynye or vice.
+345 
+346 Taak fyr, and ber it in the derkeste hous
+347 Bitwix this and the mount of Kaukasous,
+348 And lat men shette the dores and go thenne;
+349 Yet wole the fyr as faire lye and brenne
+350 As twenty thousand men myghte it biholde;
+351 
+352 His office natureel ay wol it holde,
+353 Up peril of my lyf, til that it dye.
+354 Heere may ye se wel, how that genterye
+355 Is nat annexed to possessioun,
+356 Sith folk ne doon hir operacioun
+357 
+358 Alwey, as dooth the fyr, lo, in his kynde.
+359 For God it woot, men may wel often fynde
+360 A lordes sone do shame and vileynye,
+361 And he that wole han pris of his gentrye,
+362 For he was boren of a gentil hous,
+363 
+364 And hadde hise eldres noble and vertuous,
+365 And nel hym-selven do no gentil dedis,
+366 Ne folwen his gentil auncestre that deed is,
+367 He nys nat gentil, be he duc or erl;
+368 For vileyns synful dedes make a cherl.
+369 
+370 For gentillesse nys but renomee
+371 Of thyne auncestres for hire heigh bountee,
+372 Which is a strange thyng to thy persone.
+373 Thy gentillesse cometh fro God allone.
+374 Thanne comth oure verray gentillesse of grace,
+375 
+376 It was no thyng biquethe us with oure place.
+377 Thenketh hou noble, as seith Valerius,
+378 Was thilke Tullius Hostillius,
+379 That out of poverte roos to heigh noblesse.
+380 Reedeth Senek, and redeth eek Boece,
+381 
+382 Ther shul ye seen expres that it no drede is,
+383 That he is gentil that dooth gentil dedis.
+384 And therfore, leeve housbonde, I thus conclude:
+385 Al were it that myne auncestres weren rude,
+386 Yet may the hye God, and so hope I,
+387 
+388 Grante me grace to lyven vertuously.
+389 Thanne am I gentil whan that I bigynne
+390 To lyven vertuously, and weyve synne.
+391 And ther as ye of poverte me repreeve,
+392 The hye God, on whom that we bileeve,
+393 
+394 In wilful poverte chees to lyve his lyf.
+395 And certes every man, mayden or wyf,
+396 May understonde that Jesus, hevene kyng,
+397 Ne wolde nat chesen vicious lyvyng.
+398 Glad poverte is an honeste thyng, certeyn,
+399 
+400 This wole Senec and othere clerkes seyn.
+401 Who so that halt hym payd of his poverte,
+402 I holde hym riche, al hadde he nat a sherte.
+403 He that coveiteth is a povre wight,
+404 For he wolde han that is nat in his myght;
+405 
+406 But he that noght hath, ne coveiteth have,
+407 Is riche, although ye holde hym but a knave.
+408 Verray poverte, it syngeth proprely;
+409 Juvenal seith of poverte myrily:
+410 `The povre man, whan he goth by the weye,
+411 
+412 Bifore the theves he may synge and pleye.'
+413 Poverte is hateful good, and, as I gesse,
+414 A ful greet bryngere out of bisynesse;
+415 A greet amender eek of sapience
+416 To hym that taketh it in pacience.
+417 
+418 Poverte is this, although it seme alenge,
+419 Possessioun, that no wight wol chalenge.
+420 Poverte ful ofte, whan a man is lowe,
+421 Maketh his God and eek hymself to knowe.
+422 Poverte a spectacle is, as thynketh me,
+423 
+424 Thurgh which he may hise verray freendes see.
+425 And therfore, sire, syn that I noght yow greve,
+426 Of my poverte namoore ye me repreve.
+427 Now sire, of elde ye repreve me,
+428 And certes, sire, thogh noon auctoritee
+429 
+430 Were in no book, ye gentils of honour
+431 Seyn, that men sholde an oold wight doon favour,
+432 And clepe hym fader for youre gentillesse;
+433 And auctours shal I fynden, as I gesse.
+434 Now, ther ye seye that I am foul and old,
+435 
+436 Than drede you noght to been a cokewold;
+437 For filthe and eelde, al so moot I thee,
+438 Been grete wardeyns upon chastitee;
+439 But nathelees, syn I knowe youre delit,
+440 I shal fulfille youre worldly appetit."
+441 
+442 "Chese now," quod she, "oon of thise thynges tweye:
+443 To han me foul and old til that I deye,
+444 And be to yow a trewe humble wyf,
+445 And nevere yow displese in al my lyf;
+446 Or elles ye wol han me yong and fair,
+447 
+448 And take youre aventure of the repair
+449 That shal be to youre hous, by cause of me,
+450 Or in som oother place may wel be.
+451 Now chese yourselven wheither that yow liketh."
+452 This knyght avyseth hym and sore siketh,
+453 
+454 But atte laste, he seyde in this manere:
+455 "My lady and my love, and wyf so deere,
+456 I put me in youre wise governance.
+457 Cheseth yourself, which may be moost plesance
+458 And moost honour to yow and me also.
+459 
+460 I do no fors the wheither of the two;
+461 For, as yow liketh, it suffiseth me."
+462 "Thanne have I gete of yow maistrie," quod she,
+463 "Syn I may chese and governe as me lest?"
+464 "Ye, certes, wyf," quod he, "I holde it best."
+465 
+466 "Kys me," quod she, "we be no lenger wrothe,
+467 For, by my trouthe, I wol be to yow bothe!
+468 This is to seyn, ye, bothe fair and good.
+469 I prey to God that I moote sterven wood
+470 But I to yow be al so good and trewe
+471 
+472 As evere was wyf, syn that the world was newe.
+473 And but I be to-morn as fair to seene
+474 As any lady, emperice, or queene,
+475 That is bitwixe the est and eke the west,
+476 Dooth with my lyf and deth right as yow lest.
+477 
+478 Cast up the curtyn, looke how that it is."
+479 And whan the knyght saugh verraily al this,
+480 That she so fair was, and so yong therto,
+481 For joye he hente hire in hise armes two.
+482 His herte bathed in a bath of blisse,
+483 
+484 A thousand tyme a-rewe he gan hir kisse,
+485 And she obeyed hym in every thyng
+486 That myghte doon hym plesance or likyng.
+487 And thus they lyve unto hir lyves ende
+488 In parfit joye;-and Jesu Crist us sende
+489 
+490 Housbondes meeke, yonge, fressh abedde,
+491 And grace t'overbyde hem that we wedde;
+492 And eek I praye Jesu shorte hir lyves
+493 That nat wol be governed by hir wyves;
+494 And olde and angry nygardes of dispence,
+495 
+496 God sende hem soone verray pestilence!
+497       {$SF(5)}--- Consummatum est ---{$SF(12)}

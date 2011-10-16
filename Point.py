@@ -30,8 +30,8 @@ class Point:
 
   def set(self, x=None, y=None, p=None):
     """Set x and y coords. P if used is a tuple (x,y) as returned by a previous call to get."""
-    if x is not None: self.x = x
-    if y is not None: self.y = y
+    if x is not None: self.x = int(x)
+    if y is not None: self.y = int(y)
     if isinstance(p, list) or isinstance(p, tuple):
       self.x = p[0]
       self.y = p[1]
@@ -40,11 +40,11 @@ class Point:
     """Returns a tuple of current position: (x,y)"""
     return (self.x, self.y)
 
-  def save(self):
+  def push(self):
     """Saves the current location(pushes to the internal stack"""
     self.saved.append((self.x, self.y))
 
-  def restore(self):
+  def pop(self):
     """Restores the current location from the internal stack. 
        Raises IndexError if stack is empty
     """
@@ -53,6 +53,12 @@ class Point:
       self.x , self.y = p
     except IndexError:
       raise IndexError("There are no saved locations to restore")
+ 
+  def __unicode__(self):
+    return u"Point(%s,%s)" % (self.x, self.y)
+
+  def __str__(self):
+    return unicode(self).encode('utf-8')
 
 class FontTracker:
   """Handle fonts, sizes italic etc."""

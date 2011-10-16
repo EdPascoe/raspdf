@@ -56,4 +56,11 @@ p = P()
 for line in doc.split("\n"):
   p.parseLine(line)
 
-for d in p.doc: print d
+for d in p.doc:
+  #print "####--> ", d
+  fnname = d[0]
+  if len(d) > 1:
+    params = d[1:]
+  else:
+    params = None
+  print "FN: %s  Params: %s" % (fnname, params)
