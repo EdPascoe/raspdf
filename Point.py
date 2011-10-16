@@ -1,6 +1,7 @@
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+import reportlab.pdfbase.ttfonts
 import logging
 
 log = logging.getLogger('root')
@@ -90,7 +91,17 @@ class FontTracker:
     else:
       fontfile = fontname
     log.debug("TTFont(%s, %s)", fontname, fontfile)
-    font = TTFont(fontname, fontfile)
+    try:
+      font = TTFont(fontname, fontfile)
+    except reportlab.pdfbase.ttfonts.TTFError, e: 
+      if str(e).find("Font does not allow subsetting/embedding") > -1:
+        print ""
+        print "The font you are trying to load is set to not allow embedding. Use another font or edit"
+        print "The file ttfonts.py mentioned below, go to the mentioned line and comment out the "
+        print "raise line and the 'if' statement above it. (Probably line 527 and 528)"
+        print ""
+      raise
+
     log.debug("Font: %s", font)
     pdfmetrics.registerFont(font)
     fonts[fontname] = [ fontname, fontname, fontname, fontname ]  #Use the same font no matter what styles are specified

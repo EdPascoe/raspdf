@@ -167,7 +167,7 @@ class RascalPDF:
 
   def _regfnFontSetColor(self, r, g, b):
     """For registerkeys, set font color"""
-    self.canvas.setFillColorRGB(r,g,b)
+    self.canvas.setFillColorRGB(float(r),float(g),float(b))
 
   def _regfnCopiesSet(self, numcopies):
     """For registerkeys, set number of copies"""
