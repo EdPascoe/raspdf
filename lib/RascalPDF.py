@@ -49,6 +49,7 @@ class RascalPDF:
   lmarginDefault = None
   line="NOT YET INITITALIZED"
   fileLocator = None
+  linenumber  = -1
 
   reporttitle="Rascal Report";
 
@@ -92,9 +93,11 @@ class RascalPDF:
     self.helvetica[cnstITALIC]             = 'Helvetica-Oblique';
     self.helvetica[cnstBOLD + cnstITALIC] = 'Helvetica-BoldOblique';
     self.__registerkeys()
+    self.linenumber  = -1
 
   def fnexec(self, fnname, *params, **kwargs):
     """Lookup fnname in the functions list and execute the given function call."""
+    self.linenumber += 1
     try:
       fn = self.functions[fnname]
     except KeyError:
@@ -102,12 +105,8 @@ class RascalPDF:
 
     try:
       return fn(*params, **kwargs)
-      #if len(params) == 0:
-      #  return fn()
-      #else:
-      #  return fn(*params)
     except:
-      log.error("Failure executing %s(%s)" ,fnname, params)
+      log.error("Failure executing %s(%s) Command stack line number: %s Params: %s KWargs: %s" ,fnname, params, self.linenumber, params, kwargs)
       raise
 
   def save(self):
@@ -548,19 +547,28 @@ class PrintJob:
     for line in fhandle:
       self.parser.parseLine(line)
     self.parser.addCommand('PRINTEND')
-    #for cmd in self.parser.cmdlist: log.debug("Cmd: %s", cmd)
+    lineno = 0
+    for cmd in self.parser.cmdlist: 
+      log.debug("Cmd: %s Line: %s", cmd, lineno)
+      lineno +=1
 
   def _2ndParse(self):
     """Generate the actual print job."""
     fncall = None
     partams = None
+    lineno = 0
     for cmd in  self.parser.cmdlist:
-      fncall = cmd[0]
-      if len(cmd) > 1:
-        params, kwargs = self.__args2kw(cmd[1:])
-        self.rascalpdf.fnexec(fncall, *params, **kwargs)
-      else:
-        self.rascalpdf.fnexec(fncall)
+      try:
+        fncall = cmd[0]
+        if len(cmd) > 1:
+          params, kwargs = self.__args2kw(cmd[1:])
+          self.rascalpdf.fnexec(fncall, *params, **kwargs)
+        else:
+          self.rascalpdf.fnexec(fncall)
+        lineno += 1
+      except:
+        log.error("Failure on command %s line %s", cmd, lineno)
+        raise
     log.debug("_2ndParse showPage")
     self.rascalpdf.canvas.showPage()
 
@@ -573,7 +581,7 @@ class PrintJob:
     for p in params:
       p = str(p)
       equalpos = p.find("=")
-      if equalpos == -1:
+      if equalpos == -1 or p[0] == "=" or p[0] == '"' or p[0] == "'": #Be really sure this is not string we are mistaking for a named argument.
         args.append(p)
       else:
         k = p[:equalpos]
