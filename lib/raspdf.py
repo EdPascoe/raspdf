@@ -18,10 +18,11 @@ def main():
   parser.add_option("--sz", "--zmodem", dest="zmodem", action="store_true", help="After generating the pdf file transfer via zmodem")
   parser.add_option("-l", "--landscape", dest="landscape", action="store_true", default=False, help="Use landscape A4" )
   parser.add_option("--evince", dest="evince", action="store_true", help="After generating the pdf file display using evince")
-  parser.add_option("--verbose", dest="verbose", action="store_true", help="Show debugging information")
+  parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="Show debugging information")
   parser.add_option("--debug", dest="debug", action="store_true", help="Show debugging information")
   parser.add_option("-f", "--outputfile", dest="outputfile", type="string", help="Send output to file with given name instead of a temp file.")
   parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
+  parser.add_option("-r", "--reset", dest="reset", action="store_true", help="Reset the terminal after running.")
 
   (options, args) = parser.parse_args()
 
@@ -56,12 +57,15 @@ def main():
 
   if options.zmodem:
     if not options.tty: options.tty=os.environ['TTY']
-    print "\n\nsz -e %s\n\n" % (outfile)
-    tty=Popen("tty", shell=True, stdout=PIPE).communicate()[0].strip()
-    #outf=file(tty,"w+")
-    #Popen("sz -e %s " % (outfile), shell=True, stdin=outf, stdout=outf)
-    log.debug("sz -e %s < %s > %s " % (outfile, options.tty, options.tty))
-    print "\n\n"
-    os.system("sz -e %s < %s > %s " % (outfile, options.tty, options.tty))
-    print "\n\n"
+    if options.reset: #Complicated hack because sz has a habit of messing up the screen.
+      resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty)
+    else:
+      resetstr = " "
+    cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
+    log.debug( cmd)
+    os.system(cmd)
+    if options.reset:
+      for cmd in [ "reset", "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
+	 cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
+	 os.system(cmdstr)
 

@@ -1,4 +1,4 @@
-{$INCLUDE("nacheader.inc")}
+{$INCLUDE("cummins.inc")}
 
 {$L1}{$RIGHT(71)}{$L0}
 1234567890123456789012345678901234567890123456789012345678901234567890
@@ -19,8 +19,6 @@ This text was actually placed after the
 box margin text.
 There is no RMARGIN command yet so 
 right margins have to checked by hand.
-
-
 
 
 {$RBOXS(1)}
@@ -45,6 +43,13 @@ right margins have to checked by hand.
  {$SF(12)}This is the isabella font{$SF(12)}
 {$FONTNAME("courier")}{$SF(12)}
 {$RIGHT(70)}{$RBOXE(1)}
+
+
+
+
+
+
+
 
 {$PUSHPOS}
 {$MA(x=19)}19cm >|

@@ -501,13 +501,35 @@ class PrintJob:
   parser = None
   output = None
   landscape = False
-  imagedirs = [".", "./images"];
+  imagedirs = ["images", "templates"]; #TODO this should be in a config file somewhere.
   
   def __init__(self, output=None, landscape=False ):
     """ fhandle should be a file like object. 
     """
     self.landscape = landscape
-    self.imagedirs = copy(self.imagedirs) #We don't want the class version of this so we can edit without worrying.
+
+    #Try build up a fairly detailed list of paths to search for files. 
+    imagedirs = copy(self.imagedirs) #We don't want the class version of this so we can edit without worrying.
+    searchdirs = []
+    curdir = os.path.basename(".")
+    parentdir = os.path.basename("..")
+    if curdir not in searchdirs:  searchdirs.append(curdir)
+    if parentdir not in searchdirs:  searchdirs.append(parentdir)
+    if "/etc" not in searchdirs:  searchdirs.append("/etc")
+    thisdir = os.path.basename(os.path.abspath(__file__))
+    if thisdir not in searchdirs:  searchdirs.append(thisdir)
+
+
+    for d in searchdirs: #Try multiple compbinations of imagedirs.
+      for i in self.imagedirs:
+	new = os.path.join(d, i)
+        if os.path.exists(new): 
+	 if new not in imagedirs: imagedirs.append(new)
+      if d not in imagedirs: imagedirs.append(d)
+      
+    imagedirs.insert(0,'.')
+    self.imagedirs = imagedirs 
+
     if output:
       if isinstance(output, basestring): #String means its a filename
         self.pdffile = file(output,"w+")
@@ -599,7 +621,8 @@ class PrintJob:
       fname = os.path.join(d, image)
       if os.path.exists(fname): 
           return fname
-    raise RascalPDFException("Could not find image or include file %s" % ( image))
+    print self.imagedirs
+    raise RascalPDFException("Could not find image or include file %s in any of the following directories: %s" % ( image, " : ".join(self.imagedirs)))
     
 
 if __name__ == "__main__":
