@@ -16,6 +16,7 @@ def main():
   usage = "Usage: %prog [<options>] \n" + __doc__+"\n"
   parser = optparse.OptionParser(usage)
   parser.add_option("--sz", "--zmodem", dest="zmodem", action="store_true", help="After generating the pdf file transfer via zmodem")
+  parser.add_option("-l", "--landscape", dest="landscape", action="store_true", default=False, help="Use landscape A4" )
   parser.add_option("--evince", dest="evince", action="store_true", help="After generating the pdf file display using evince")
   parser.add_option("--verbose", dest="verbose", action="store_true", help="Show debugging information")
   parser.add_option("--debug", dest="debug", action="store_true", help="Show debugging information")
@@ -41,7 +42,7 @@ def main():
     tf = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     outfile = tf.name
     log.debug("Outfile: %s", outfile)
-  c = RascalPDF.PrintJob(output=outfile )
+  c = RascalPDF.PrintJob(output=outfile, landscape=options.landscape )
     
   if args: c.feed(file(args[0]))
   else: c.feed(sys.stdin)
