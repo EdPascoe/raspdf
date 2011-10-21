@@ -1,0 +1,5 @@
+#!/rascal/raspdf/pyinst/bin/python
+import sys
+sys.path.append('/rascal/raspdf/lib')
+import raspdf
+raspdf.main()
