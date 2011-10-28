@@ -43,9 +43,9 @@ class RascalPDF:
   canvas = None
   font_size = 10 #Default font size
   #Margins
-  lmargin = 1.5*cm
-  tmargin = 1.5*cm
-  bmargin = 1.5*cm
+  lmargin = 0.5*cm
+  tmargin = 0.5*cm
+  bmargin = 1*cm
   lmarginDefault = None
   line="NOT YET INITITALIZED"
   fileLocator = None
@@ -503,9 +503,10 @@ class PrintJob:
   landscape = False
   imagedirs = ["images", "templates"]; #TODO this should be in a config file somewhere.
   
-  def __init__(self, output=None, landscape=False ):
+  def __init__(self, output=None, pagesize = reportlab.lib.pagesizes.A4, landscape=False ):
     """ fhandle should be a file like object. 
     """
+    self.pagesize = pagesize
     self.landscape = landscape
 
     #Try build up a fairly detailed list of paths to search for files. 
@@ -550,7 +551,7 @@ class PrintJob:
       self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     
     self._1stParse(fhandle)
-    self.rascalpdf = RascalPDF(self.pdffile, pagesize=reportlab.lib.pagesizes.A4, isLandscape=self.landscape, fileLocator=self.fileLocator)
+    self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape, fileLocator=self.fileLocator)
 
     self.rascalpdf.info.producer = "xxpdf2 by Ed.Pascoe <ed@pascoe.co.za>"
     self.rascalpdf.info.tile="Rascal document"
@@ -567,6 +568,11 @@ class PrintJob:
     self.parser = _Parser(fileLocator=self.fileLocator)
     self.parser.addCommand('PRINTINIT')
     for line in fhandle:
+      # -------- Strip any control characters -----------
+      line = line.replace(chr(0x0f),'') # ^O
+      line = line.replace(chr(0x1b),'') # ^[ Escape
+      line = line.replace(chr(0x12),'') # ^R
+      # convert the line into function calls for 2nd parse later.
       self.parser.parseLine(line)
     self.parser.addCommand('PRINTEND')
     lineno = 0
