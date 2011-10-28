@@ -43,8 +43,8 @@ class RascalPDF:
   canvas = None
   font_size = 10 #Default font size
   #Margins
-  lmargin = 0.5*cm
-  tmargin = 0.5*cm
+  lmargin = 0.6*cm
+  tmargin = 0.8*cm
   bmargin = 1*cm
   lmarginDefault = None
   line="NOT YET INITITALIZED"
