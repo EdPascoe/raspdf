@@ -517,7 +517,7 @@ class PrintJob:
     if curdir not in searchdirs:  searchdirs.append(curdir)
     if parentdir not in searchdirs:  searchdirs.append(parentdir)
     if "/etc" not in searchdirs:  searchdirs.append("/etc")
-    thisdir = os.path.basename(os.path.abspath(__file__))
+    thisdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..')
     if thisdir not in searchdirs:  searchdirs.append(thisdir)
 
 
