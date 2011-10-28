@@ -247,7 +247,7 @@ class RascalPDF:
     self.pos.x =  self.lmargin; 
 
   def right(self, c): 
-    c= int(c) -1
+    c= int(c)  #Zero based to match xxpdf
     if c < 0: c = 0
     self.pos.x =  int(self.lmargin + self.calcWidth("_"  * c ))
     
@@ -397,7 +397,7 @@ class RascalPDF:
      self.printingbegun=True;
 
   def calcTextWidth(self, line):
-    return self.caclWidth(line);
+    return self.calcWidth(line);
 
   def calcWidth(self, text):
     """Return width of give line of text
@@ -519,7 +519,8 @@ class PrintJob:
     if "/etc" not in searchdirs:  searchdirs.append("/etc")
     thisdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..')
     if thisdir not in searchdirs:  searchdirs.append(thisdir)
-
+    exedir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    if exedir not in searchdirs:  searchdirs.append(exedir)
 
     for d in searchdirs: #Try multiple compbinations of imagedirs.
       for i in self.imagedirs:
