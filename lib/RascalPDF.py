@@ -521,10 +521,13 @@ class PrintJob:
     if thisdir not in searchdirs:  searchdirs.append(thisdir)
     exedir = os.path.dirname(os.path.abspath(sys.argv[0]))
     if exedir not in searchdirs:  searchdirs.append(exedir)
+    if os.path.islink(sys.argv[0]): 
+      exedir = os.path.dirname(os.path.abspath(os.readlink(sys.argv[0])))
+      if exedir not in searchdirs:  searchdirs.append(exedir)
 
     for d in searchdirs: #Try multiple compbinations of imagedirs.
       for i in self.imagedirs:
-	new = os.path.join(d, i)
+        new = os.path.join(d, i)
         if os.path.exists(new): 
 	 if new not in imagedirs: imagedirs.append(new)
       if d not in imagedirs: imagedirs.append(d)
@@ -628,7 +631,6 @@ class PrintJob:
       fname = os.path.join(d, image)
       if os.path.exists(fname): 
           return fname
-    print self.imagedirs
     raise RascalPDFException("Could not find image or include file %s in any of the following directories: %s" % ( image, " : ".join(self.imagedirs)))
     
 

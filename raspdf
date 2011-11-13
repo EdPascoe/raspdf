@@ -1,5 +1,12 @@
-#!/rascal/raspdf/pyinst/bin/python
+#!/usr/bin/env python
+
 import sys
-sys.path.append('/rascal/raspdf/lib')
+import os, os.path 
+
+#If this is a softlink to somewhere else we need the destination path
+if os.path.islink(__file__): rd = os.path.dirname(os.path.abspath(os.readlink(__file__)))
+else: rd = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(rd,'lib'))
+
 import raspdf
 raspdf.main()

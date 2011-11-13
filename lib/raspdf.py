@@ -9,6 +9,7 @@ import optparse
 import os, sys, time, tempfile
 import reportlab.lib.pagesizes
 from subprocess import *
+from cStringIO import StringIO
 
 import RascalPDF
 
@@ -24,6 +25,7 @@ def main():
   parser.add_option("-f", "--outputfile", dest="outputfile", type="string", help="Send output to file with given name instead of a temp file.")
   parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
   parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69" ')
+  parser.add_option("-p", "--print", dest="printer", type="string", help='Send the pdf to given cups printer')
 
   (options, args) = parser.parse_args()
 
@@ -39,16 +41,22 @@ def main():
   if options.debug:  log.setLevel(logging.DEBUG)
 
   start= time.time()
-  outfile = options.outputfile
-  if not options.outputfile:
+  outfile = None
+  if options.outputfile:
+    outfile = options.outputfile
+    outhandle = file(outfile,"w")
+  elif options.zmodem:
     tf = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     outfile = tf.name
-    log.debug("Outfile: %s", outfile)
+    log.debug("Temporary outfile: %s", outfile)
+    outhandle = tf
+  else:
+    outhandle = StringIO() #Store the file in memory for speed.
 
   if options.xxpdf: pagesize = (590, 890) # Use the old incorect page sizes from xxpdf.
   else: pagesize = reportlab.lib.pagesizes.A4
 
-  c = RascalPDF.PrintJob(output=outfile, pagesize=pagesize, landscape=options.landscape)
+  c = RascalPDF.PrintJob(output=outhandle, pagesize=pagesize, landscape=options.landscape)
     
   if args: c.feed(file(args[0]))
   else: c.feed(sys.stdin)
@@ -70,4 +78,11 @@ def main():
       for cmd in [ "reset", "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
         cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
         os.system(cmdstr)
+
+  if options.printer:
+    pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
+    outhandle.flush()
+    outhandle.seek(0)
+    pipe.write(outhandle.read())
+    pipe.close()
 
