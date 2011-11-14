@@ -1,7 +1,7 @@
 #!/bin/bash
 #Install all required libraries for raspdf
 INSTDIR="../PYTHONINSTALL"
-INSTDIR="../pyinst"
+#INSTDIR="../pyinst"
 
 cd `dirname $0`
 cd install

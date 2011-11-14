@@ -18,10 +18,6 @@ import optparse
 import os, sys, time, tempfile
 import reportlab.lib.pagesizes
 import smtplib
-#from email.message import Message
-#from email.header import Header
-#from email.MIMEText import MIMEText
-#from email.mime.multipart import MIMEMultipart
 import socket
 from subprocess import *
 from cStringIO import StringIO
@@ -102,51 +98,9 @@ def main():
     outhandle.seek(0)
     pipe.write(outhandle.read())
     pipe.close()
-  if options.to:
-    smtpserver = RasConfig.get('global', 'smtpserver')
-    mailfrom = RasConfig.get('global', 'from')
-    if options.subject:
-      subject = options.subject
-    else:
-      subject = RasConfig.get_default('global', 'subject','Rascal Report')
-    destemail = []
-    for addr in options.to:
-      destemail = destemail + list([x.strip() for x in addr.split(',')])
 
-    msg = MIMEMultipart('mixed')
-    msg["Subject"] = options.subject
-    msg["To"] = mailto 
-    msg["From"] = mailfrom     
-    msg['Message-ID']= "<%s@%s>" % (time.time(), socket.gethostname())
-    msg["X-Mailer"] = "RasPDF report generator"
-    msg["Auto-Submitted"]= "auto-generated"
-    msg.preamble = 'Rascal Report'
-    
-    #msgalt = MIMEMultipart('alternative')
-    #m=MIMEText(file(texttemplate).read(), 'plain')
-    #m['charset']="UTF-8"
-    #msgalt.attach(m)
-    #m=MIMEText(file(htmltemplate).read() ,'html')
-    #m['charset']="UTF-8"
-    #msgalt.attach(m)
-    #calmsg = MIMEBase('text','calendar', method='REQUEST', charset='UTF-8')
-    #calmsg.set_payload(self.request())
-    #msgalt.attach(calmsg)
-    #msg.attach(msgalt)
-    
-    msgpdf = MIMENonMultipart('application','pdf', name="report.pdf")
+  if options.to:
+    import RasEmail
     outhandle.flush()
     outhandle.seek(0)
-    msgpdf.set_payload(payload.read())
-    #msgpdf['Content-Transfer-Encoding'] = 'base64'
-    msgpdf.add_header('Content-Disposition', 'attachment', filename = 'report.pdf')
-    msg.attach(msgpdf)
-
-
-    s = smtplib.SMTP(smtpserver)
-    if options.debug:
-      print msg.as_string()
-      s.set_debuglevel(2)
-    s.sendmail(mailfrom, destemail, msg.as_string())
-    s.quit()
-
+    RasEmail.mailFile(options.to, options.subject, None, (outhandle, 'report.pdf', 'application/pdf'))
