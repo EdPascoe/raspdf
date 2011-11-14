@@ -104,7 +104,7 @@ def mailFile(tolist, subject, bodyhtml, *args):
 
   msg = createEmail(mailfrom, tolist, subject)
   for fh, fname, mimetype in args:
-    print "FH: %s Fname: %s, mime: %s" % ( fh, fname, mimetype)
+    log.debug("FH: %s Fname: %s, mime: %s" , fh, fname, mimetype)
     if isinstance(fh, str):
       contents = fh
     elif isinstance(fh, unicode):

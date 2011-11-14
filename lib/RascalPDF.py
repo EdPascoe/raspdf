@@ -69,7 +69,7 @@ class RascalPDF:
     else:
       pagesize = reportlab.lib.pagesizes.portrait(pagesize)
 
-    self.canvas = canvas.Canvas(self.pdffile, pagesize, verbosity=1)
+    self.canvas = canvas.Canvas(self.pdffile, pagesize, verbosity=0)
     self.canvas.setPageCompression(True)
 
     self.info = self.canvas._doc.info #The PDF document info
@@ -286,7 +286,7 @@ class RascalPDF:
   def moveabsolute(self, x=None, y=None):
     """Move to given spot on page. x and y in cm"""
     if x: self.pos.x = float(x) * cm;
-    if y: self.pos.y = self.pagesize[1] - int(y)* cm;
+    if y: self.pos.y = self.pagesize[1] - float(y)* cm;
 
   def printinit(self):
     """Initialize printing system"""
@@ -526,7 +526,6 @@ class PrintJob:
     """Feed data to the pdf job"""
     if not self.pdffile:
       self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
-    
     self._1stParse(fhandle)
     self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 
