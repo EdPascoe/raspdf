@@ -18,10 +18,10 @@ import optparse
 import os, sys, time, tempfile
 import reportlab.lib.pagesizes
 import smtplib
-from email.message import Message
-from email.header import Header
-from email.MIMEText import MIMEText
-from email.mime.multipart import MIMEMultipart
+#from email.message import Message
+#from email.header import Header
+#from email.MIMEText import MIMEText
+#from email.mime.multipart import MIMEMultipart
 import socket
 from subprocess import *
 from cStringIO import StringIO

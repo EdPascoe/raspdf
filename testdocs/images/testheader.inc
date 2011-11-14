@@ -1,9 +1,8 @@
-                                                                    {$PIC("nac4.jpg",100,55)}
-{$FONTNAME("helvetica")}{$SETCOLOR(0,0,0.42)}
-{$SF(20)}National Airways Corporation (Pty) Ltd.{$SF(12)}
-{$SF(8)}Reg No 1945/019919/07 {$RIGHT(58)}VAT Reg. 4090107188{$SF(12)}
+{$RIGHT(68)} {$PIC("testheader.jpg",150,125)}
+{$FONTNAME("helvetica")}
+{$SF(20)}Cummins South Africa (Pty) Ltd.{$SF(12)}
+{$SF(8)}Reg No 2000/009321/07 {$RIGHT(45)}VAT Reg. 4200189118{$SF(12)}
 {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
-
 
 
 
