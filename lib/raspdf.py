@@ -1,17 +1,32 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# © Ed Pascoe 2011. All rights reserved.
 """
 Generate PDF reports designed to interact well with rascal.
 Replacement for the old xxpdf program.
 """
+__author__ = "Ed Pascoe <ed@pascoe.co.za>"
+__format__ = "plaintext"
+__version__ = "$Id$"
+__copyright__ = "Ed Pascoe 2011. All rights reserved."
+__license__ = "GNU LGPL version 2"
+__status__ = "Production"
+
 
 import logging
 import optparse
 import os, sys, time, tempfile
 import reportlab.lib.pagesizes
+import smtplib
+from email.message import Message
+from email.header import Header
+from email.MIMEText import MIMEText
+from email.mime.multipart import MIMEMultipart
+import socket
 from subprocess import *
 from cStringIO import StringIO
 
-import RascalPDF
+import RascalPDF, RasConfig
 
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
@@ -26,6 +41,8 @@ def main():
   parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
   parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69" ')
   parser.add_option("-p", "--print", dest="printer", type="string", help='Send the pdf to given cups printer')
+  parser.add_option("--to", dest="to", action="append", help="Address to send the mail to. May be specified multiple times or addresses may be comma separated.")
+  parser.add_option("--subject", dest="subject", default="", help="Message subject")
 
   (options, args) = parser.parse_args()
 
@@ -85,4 +102,51 @@ def main():
     outhandle.seek(0)
     pipe.write(outhandle.read())
     pipe.close()
+  if options.to:
+    smtpserver = RasConfig.get('global', 'smtpserver')
+    mailfrom = RasConfig.get('global', 'from')
+    if options.subject:
+      subject = options.subject
+    else:
+      subject = RasConfig.get_default('global', 'subject','Rascal Report')
+    destemail = []
+    for addr in options.to:
+      destemail = destemail + list([x.strip() for x in addr.split(',')])
+
+    msg = MIMEMultipart('mixed')
+    msg["Subject"] = options.subject
+    msg["To"] = mailto 
+    msg["From"] = mailfrom     
+    msg['Message-ID']= "<%s@%s>" % (time.time(), socket.gethostname())
+    msg["X-Mailer"] = "RasPDF report generator"
+    msg["Auto-Submitted"]= "auto-generated"
+    msg.preamble = 'Rascal Report'
+    
+    #msgalt = MIMEMultipart('alternative')
+    #m=MIMEText(file(texttemplate).read(), 'plain')
+    #m['charset']="UTF-8"
+    #msgalt.attach(m)
+    #m=MIMEText(file(htmltemplate).read() ,'html')
+    #m['charset']="UTF-8"
+    #msgalt.attach(m)
+    #calmsg = MIMEBase('text','calendar', method='REQUEST', charset='UTF-8')
+    #calmsg.set_payload(self.request())
+    #msgalt.attach(calmsg)
+    #msg.attach(msgalt)
+    
+    msgpdf = MIMENonMultipart('application','pdf', name="report.pdf")
+    outhandle.flush()
+    outhandle.seek(0)
+    msgpdf.set_payload(payload.read())
+    #msgpdf['Content-Transfer-Encoding'] = 'base64'
+    msgpdf.add_header('Content-Disposition', 'attachment', filename = 'report.pdf')
+    msg.attach(msgpdf)
+
+
+    s = smtplib.SMTP(smtpserver)
+    if options.debug:
+      print msg.as_string()
+      s.set_debuglevel(2)
+    s.sendmail(mailfrom, destemail, msg.as_string())
+    s.quit()
 

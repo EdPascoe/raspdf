@@ -1,0 +1,7 @@
+[global]
+smtpserver = 192.168.10.4
+from = <donotreply@sheltam.co.za>
+subject = Generic rascal report
+mime = application/octet-stream
+filename = report.pdf
+message = Your report should be attached.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# © Ed Pascoe 2011. All rights reserved.
 """
 Converts rascal reports in this format to a pdf. ALL tags start with "{$"
                                                                {$PIC("nac.jpg",158,93)}
@@ -17,6 +19,13 @@ Converts rascal reports in this format to a pdf. ALL tags start with "{$"
 {$BOXS(5)}                                                          {$L1(2)}
 
 """
+__author__ = "Ed Pascoe <ed@pascoe.co.za>"
+__format__ = "plaintext"
+__version__ = "$Id$"
+__copyright__ = "Ed Pascoe 2011. All rights reserved."
+__license__ = "GNU LGPL version 2"
+__status__ = "Production"
+
 from reportlab.pdfgen import canvas
 import reportlab.lib.pagesizes
 from reportlab.platypus.flowables import Image
@@ -30,6 +39,7 @@ log = logging.getLogger("root")
 import re, os, os.path, sys, tempfile 
 from copy import copy, deepcopy
 from reportlab.pdfbase.pdfmetrics import stringWidth
+from RasConfig import fileLocate
 
 cnstNORMAL = 0
 cnstBOLD = 1
@@ -48,19 +58,17 @@ class RascalPDF:
   bmargin = 1*cm
   lmarginDefault = None
   line="NOT YET INITITALIZED"
-  fileLocator = None
   linenumber  = -1
 
   reporttitle="Rascal Report";
 
-  def  __init__(self, pdffile, pagesize=reportlab.lib.pagesizes.A4, isLandscape=False, fileLocator=None):
+  def  __init__(self, pdffile, pagesize=reportlab.lib.pagesizes.A4, isLandscape=False ):
     self.pdffile = pdffile
     if isLandscape:
       pagesize = reportlab.lib.pagesizes.landscape(pagesize)
     else:
       pagesize = reportlab.lib.pagesizes.portrait(pagesize)
 
-    self.fileLocator = fileLocator #function to call for locating files if they are not in current directory
     self.canvas = canvas.Canvas(self.pdffile, pagesize, verbosity=1)
     self.canvas.setPageCompression(True)
 
@@ -68,7 +76,7 @@ class RascalPDF:
     self.pagesize = pagesize
 
     self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
-    self.font=FontTracker(fileLocator=self.fileLocator)
+    self.font=FontTracker(fileLocator=fileLocate)
 
     self.boxlist  = {} # for drawing boxes
     self.linelist = {} # for drawing lines
@@ -437,11 +445,8 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
     if imgheight:
       imgheight = int(imgheight)
       y = y -  imgheight 
-    if self.fileLocator:
-      fname=self.fileLocator(fname)
-    
-    if not os.path.exists(fname):
-      raise RascalPDFException("Unable to location file %s" % (fname))
+
+    fname=fileLocate(fname)
     self.canvas.drawImage(fname, x, y, imgwidth, imgheight)
 
 class _Parser:
@@ -450,10 +455,8 @@ class _Parser:
             for line in file("Blah"): p.parseLine(line)
             print "Function calls: ", print p.cmdlist
   """
-  fileLocator = None
-  def __init__(self, fileLocator = None):
+  def __init__(self):
     self.cmdlist = []
-    self.fileLocator = fileLocator
 
   def parseLine(self, line):
     if len(line)==0: return  #Blank line
@@ -486,54 +489,24 @@ class _Parser:
     params = [ x.strip() for x in params.split(",") if len(x.strip()) > 0]
     if cmdname == "INCLUDE":
       includefile = list(params)[0]
-      if self.fileLocator:
-        includefile = self.fileLocator(includefile)
+      includefile = fileLocate(includefile)
       log.debug("Including %s", includefile)
       for line in file(includefile):
         self.parseLine(line)
     else:
       return self.cmdlist.append([ cmdname,] +  list(params) )
-    
-
 class PrintJob:
   """Controls the output and setup of a print job. """
   rascalpdf = None
   parser = None
   output = None
   landscape = False
-  imagedirs = ["images", "templates"]; #TODO this should be in a config file somewhere.
   
   def __init__(self, output=None, pagesize = reportlab.lib.pagesizes.A4, landscape=False ):
     """ fhandle should be a file like object. 
     """
     self.pagesize = pagesize
     self.landscape = landscape
-
-    #Try build up a fairly detailed list of paths to search for files. 
-    imagedirs = copy(self.imagedirs) #We don't want the class version of this so we can edit without worrying.
-    searchdirs = []
-    curdir = os.path.basename(".")
-    parentdir = os.path.basename("..")
-    if curdir not in searchdirs:  searchdirs.append(curdir)
-    if parentdir not in searchdirs:  searchdirs.append(parentdir)
-    if "/etc" not in searchdirs:  searchdirs.append("/etc")
-    thisdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..')
-    if thisdir not in searchdirs:  searchdirs.append(thisdir)
-    exedir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    if exedir not in searchdirs:  searchdirs.append(exedir)
-    if os.path.islink(sys.argv[0]): 
-      exedir = os.path.dirname(os.path.abspath(os.readlink(sys.argv[0])))
-      if exedir not in searchdirs:  searchdirs.append(exedir)
-
-    for d in searchdirs: #Try multiple compbinations of imagedirs.
-      for i in self.imagedirs:
-        new = os.path.join(d, i)
-        if os.path.exists(new): 
-	 if new not in imagedirs: imagedirs.append(new)
-      if d not in imagedirs: imagedirs.append(d)
-      
-    imagedirs.insert(0,'.')
-    self.imagedirs = imagedirs 
 
     if output:
       if isinstance(output, basestring): #String means its a filename
@@ -555,7 +528,7 @@ class PrintJob:
       self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     
     self._1stParse(fhandle)
-    self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape, fileLocator=self.fileLocator)
+    self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 
     self.rascalpdf.info.producer = "xxpdf2 by Ed.Pascoe <ed@pascoe.co.za>"
     self.rascalpdf.info.tile="Rascal document"
@@ -563,13 +536,12 @@ class PrintJob:
 
     self._2ndParse()
     self.rascalpdf.canvas.save()
-    self.rascalpdf.fileLocator = None #Kill the circular reference so gc will work correctly.
     self.pdffile.flush()
     return True
 
   def _1stParse(self, fhandle):
     """Converts the incoming document into a series of functions to be executed"""
-    self.parser = _Parser(fileLocator=self.fileLocator)
+    self.parser = _Parser()
     self.parser.addCommand('PRINTINIT')
     for line in fhandle:
       # -------- Strip any control characters -----------
@@ -621,21 +593,8 @@ class PrintJob:
         kw[k.strip()] = v.strip()
     return (args, kw)
 
-  def fileLocator(self, image):
-    """Search  self.imagedirs for the image or file to include"""
-    if image[0] == '"' and image[-1] == '"': #Filename has quotes around it which need to be removed.
-      image = image[1:-1]
-    if os.path.exists(image): 
-      return image #Full path, already exists.
-    for d in self.imagedirs:
-      fname = os.path.join(d, image)
-      if os.path.exists(fname): 
-          return fname
-    raise RascalPDFException("Could not find image or include file %s in any of the following directories: %s" % ( image, " : ".join(self.imagedirs)))
     
-
 if __name__ == "__main__":
-
   #Enable logging
   formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")
   output = logging.StreamHandler()
