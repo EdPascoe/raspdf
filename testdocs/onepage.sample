@@ -55,5 +55,5 @@ right margins have to checked by hand.
 {$PUSHPOS}
 {$MA(x=19)}19cm >|
 {$MA(x=20)}*
-{$MA(y=11)}*11 cm from top.
+{$MA(y=10.5)}*10.5 cm from top.
 {$POPPOS}
