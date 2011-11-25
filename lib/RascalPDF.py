@@ -467,11 +467,11 @@ class _Parser:
       leadtext=r.group(1)
       cmd=r.group(2)
       restofline = r.group(3)
-      self.cmdlist.append(("printstring", leadtext))
+      self.cmdlist.append(("printstring", u'line="' + leadtext.replace(r'"',r'\\"') +'"'))
       self.addCommand(cmd)
       self.parseLine(restofline)
     else:
-      self.cmdlist.append(("printstring", line))
+      self.cmdlist.append(("printstring", u'line="' + line.replace(r'"',r'\\"') +'"'))
 
     if hasnewline:
       self.cmdlist.append(("newline",))
@@ -547,6 +547,11 @@ class PrintJob:
       line = line.replace(chr(0x0f),'') # ^O
       line = line.replace(chr(0x1b),'') # ^[ Escape
       line = line.replace(chr(0x12),'') # ^R
+      try: line = line.decode("utf-8")
+      except UnicodeDecodeError: #Drop any non-readable characters.
+        line = line.decode("utf-8", errors="replace") #Convert to unicode. Leaving out any characters that would cause issues.
+        line = line.replace(u'\ufffd', '') #Remove the unicode unknown character from the text.
+
       # convert the line into function calls for 2nd parse later.
       self.parser.parseLine(line)
     self.parser.addCommand('PRINTEND')
@@ -588,8 +593,17 @@ class PrintJob:
         args.append(p)
       else:
         k = p[:equalpos]
-        v = p[equalpos+1:]
-        kw[k.strip()] = v.strip()
+        if k.find(" ") > -1: #A space in the keyword part of the name means this is NOT a named argument
+          args.append(p)
+          continue
+        else:
+          v = p[equalpos+1:].strip()
+          if v[0] == '"' and v[-1] == '"': #Chop off any quotations around the entire string.
+            v = v[1:-1]
+          elif v[0] == "'" and v[-1] == "'": #Chop off any quotations around the entire string.
+            v = v[1:-1]
+
+          kw[k.strip()] = v
     return (args, kw)
 
     

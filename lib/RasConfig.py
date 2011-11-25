@@ -94,6 +94,16 @@ try:
 except ParsingError: #The original xmmail.conf file has perl extentions which we just ignore.
   print >>sys.stderr, "The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (fileLocate('xmmail.conf'))
   sys.exit(1)
+except RasConfigNoSuchFileError:
+  print >> sys.stderr, "Could not locate an xmmail.conf file. Please create a file called /etc/xmmail.conf that looks something like:"
+  print >> sys.stderr, """[global]
+smtpserver = localhost
+from = <donotreply@pascoe.co.za>
+subject = Generic rascal report
+mime = application/octet-stream
+filename = report.pdf
+message = Your report should be attached.
+"""
 
 #
 #config = ConfigParser.ConfigParser()
