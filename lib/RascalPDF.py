@@ -549,7 +549,7 @@ class PrintJob:
       line = line.replace(chr(0x12),'') # ^R
       try: line = line.decode("utf-8")
       except UnicodeDecodeError: #Drop any non-readable characters.
-        line = line.decode("utf-8", errors="replace") #Convert to unicode. Leaving out any characters that would cause issues.
+        line = line.decode("utf-8", "replace") #Convert to unicode. Leaving out any characters that would cause issues.
         line = line.replace(u'\ufffd', '') #Remove the unicode unknown character from the text.
 
       # convert the line into function calls for 2nd parse later.
