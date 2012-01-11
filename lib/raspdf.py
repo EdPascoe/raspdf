@@ -86,10 +86,9 @@ def main():
     cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
     log.debug( cmd)
     os.system(cmd)
-    if options.reset:
-      for cmd in [ "reset", "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
-        cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
-        os.system(cmdstr)
+    for cmd in [ "reset", "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
+      cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
+      os.system(cmdstr)
 
   if options.printer:
     pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
