@@ -1,11 +1,18 @@
-#!/rascal/raspdf_testing/PYTHONINSTALL/bin/python
+#!/usr/bin/env python
 import sys
 import os, os.path 
 
-#If this is a softlink to somewhere else we need the destination path
-rd = __file__
-while os.path.islink(rd): rd = os.readlink(rd)
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(rd)),'lib'))
+#If this is a softlink to somewhere else we need real file location.
+root = os.path.abspath(__file__)
+while os.path.islink(root): root = os.readlink(root)
+root = os.path.abspath(os.path.dirname(root))
 
-import raspdf
-raspdf.main()
+activateloc = os.path.join(root, "ENV/bin/activate_this.py")
+if not os.path.exists(activateloc):
+  os.system(os.path.join(root,"install.py"))
+
+execfile(activateloc, dict(__file__=activateloc))
+sys.path.append(os.path.join(root,'lib'))
+
+import RasPDF
+RasPDF.main()
