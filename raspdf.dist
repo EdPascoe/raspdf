@@ -1,4 +1,13 @@
-#!/rascal/raspdf/pyinst/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# © Ed Pascoe 2012. All rights reserved.
+"""Wrapper around the main RasPDF library"""
+__author__ = "Ed Pascoe <ed@pascoe.co.za>"
+__format__ = "plaintext"
+__version__ = "$Id$"
+__copyright__ = "Ed Pascoe 2012"
+__license__ = "BSD"
+__status__ = "Production"
 
 import sys
 import os, os.path 
@@ -6,8 +15,11 @@ import os, os.path
 #If this is a softlink to somewhere else we need the destination path
 rd = __file__
 while os.path.islink(rd): rd = os.path.dirname(os.path.abspath(os.readlink(rd)))
-rd = os.path.dirname(rd)
+rd = os.path.abspath(os.path.dirname(rd))
 sys.path.append(os.path.join(rd,'lib'))
 
-import raspdf
-raspdf.main()
+import RasPDF
+try:
+  RasPDF.main()
+except KeyboardInterrupt:
+  sys.exit(1)

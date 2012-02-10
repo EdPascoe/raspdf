@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#This version of raspdf will run using the default version of python and try to activate itself.
 import sys
 import os, os.path 
 
