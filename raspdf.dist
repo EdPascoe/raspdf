@@ -12,11 +12,14 @@ __status__ = "Production"
 import sys
 import os, os.path 
 
-#If this is a softlink to somewhere else we need the destination path
+#Setup system so we can find the libraries easily.
 rd = __file__
 while os.path.islink(rd): rd = os.path.dirname(os.path.abspath(os.readlink(rd)))
 rd = os.path.abspath(rd)
-sys.path.append(os.path.join(rd,'lib'))
+for d in [ os.path.join(rd, 'lib'), '/usr/local/raspdf/lib', '/usr/lib/raspdf' ]:
+  if os.path.exists(d) and not d in sys.path:  
+    sys.path.append(d)
+    break #Use the first path that matches.
 
 import RasPDF
 try:
