@@ -46,13 +46,28 @@ def h2text(data):
   return  html2text.html2text(data, baseurl)
   #return  html2text.wrapwrite(html2text.html2text(data, baseurl))
 
-def createEmail(mailfrom, destemail, subject, mfrom=None, bodyhtml=None, bodytext=None):
+def __splitMailAddresses(maillist):
+  #maillist can be array of addresses or a string with addresses comma separated.
+  if maillist is None: return []
+
+  if isinstance(maillist, basestring): maillist=[maillist,]
+
+  destemail = []
+  for addr in maillist:
+    destemail = destemail + list([x.strip() for x in addr.split(',')])
+  return destemail
+
+def createEmail(tolist, subject, mailfrom=None, bodyhtml=None, bodytext=None, readreceipt=False, cclist=None, bcclist=None):
   """returns a mime email object that can have attachments added to it
      bodytxt and bodyhtml are the contents of the message.
      If bodytext is None it will be created by converting bodyhtml.
+     cclist is for entries on the Cc line..
+     bcclist is not used here but is allowed for compatibility with sendEmail later.
   """
   if subject is None or len(subject) < 1:
     subject = RasConfig.get_default('global', 'subject','Rascal Report')
+  if mailfrom is None or len(mailfrom) < 1:
+    mailfrom = RasConfig.get('global', 'from')
 
 
   #Load the email message from the given text file. If 
@@ -67,10 +82,18 @@ def createEmail(mailfrom, destemail, subject, mfrom=None, bodyhtml=None, bodytex
 
   msg = MIMEMultipart('mixed')
   msg["Subject"] = subject
+  destemail = __splitMailAddresses(tolist)
   msg["To"] = ", ".join(destemail)
   msg["From"] = mailfrom     
   msg['Message-ID']= "<%s@%s>" % (time.time(), socket.gethostname())
   msg["X-Mailer"] = "RasPDF report generator"
+  if readreceipt:
+    msg['Disposition-Notification-To'] = mailfrom
+
+  ccmail = __splitMailAddresses(cclist)
+  if len(ccmail) > 0:
+    msg["Cc"] = ", ".join(ccmail)
+
   msg.preamble = "Rascal Report.\nIf you are seeing this you must have the only mailreader on the planet that can't view mime\n\n"""
 
   mtxt=MIMEText(bodytext, 'plain')
@@ -87,23 +110,12 @@ def createEmail(mailfrom, destemail, subject, mfrom=None, bodyhtml=None, bodytex
 
   return msg
 
-def mailFile(tolist, subject, bodyhtml, *args):
-  """Email the current PDF file to everyone on tolist
-     Subject is email subject.
-     bodyhtml is the html message to in the message body. Set it to None to use the defaults.
-     each following arg should be a tuple: (filecontents/filehandle, nameof the file, mimetype)
-      eg: mailFile('a@b.com,c@d.com', "Test message", None, (fh, 'report.pdf', 'application/pdf'))
-     
+def addAttachements(msg, *attachments):
+  """msg should be a mime email (can be created useing createEmail)
+     each attachement should be a tuple of the form: (filecontents/filehandle, nameof the file, mimetype)
+      eg: addAttachements(msg, (fh, 'report.pdf', 'application/pdf'))
   """
-
-  if isinstance(tolist, basestring): tolist=[tolist,]
-  mailfrom = RasConfig.get('global', 'from')
-  destemail = []
-  for addr in tolist:
-    destemail = destemail + list([x.strip() for x in addr.split(',')])
-
-  msg = createEmail(mailfrom, tolist, subject)
-  for fh, fname, mimetype in args:
+  for fh, fname, mimetype in attachments:
     log.debug("FH: %s Fname: %s, mime: %s" , fh, fname, mimetype)
     if isinstance(fh, str):
       contents = fh
@@ -118,21 +130,31 @@ def mailFile(tolist, subject, bodyhtml, *args):
     encode_base64(msgdata)
     msgdata.add_header('Content-Disposition', 'attachment', filename = fname)
     msg.attach(msgdata)
+  return msg
 
-  #print msg.as_string() ; sys.exit(1)
+def sendMail(tolist, msg, mailfrom = None, cclist=None, bcclist=None):
+  """Email the current PDF file to everyone on tolist
+     msg should be a mime email (create using createEmail)
+     if mailfrom is None will be looked up in config. 
+  """
 
+  if isinstance(tolist, basestring): tolist=[tolist,]
+  if mailfrom is None: mailfrom = RasConfig.get('global', 'from')
+
+  destemail = __splitMailAddresses(tolist) + __splitMailAddresses(cclist) + __splitMailAddresses(bcclist)
+  
   smtpserver = RasConfig.get('global', 'smtpserver')
   s = smtplib.SMTP(smtpserver)
-  #s.set_debuglevel(2)
+  #s.set_debuglevel(1)
   s.sendmail(mailfrom, destemail, msg.as_string())
   s.quit()
 
 if __name__=="__main__":
   fh = file("/etc/hosts")
-  mailFile('ed.pascoe@gmail.com', "Test subject", None, 
-      (file('/usr/share/pixmaps/faces/sky.jpg'), 'sky.jpg', 'image/jpeg'),
-      (file('/usr/share/doc/systemtap-0.9.7/tutorial.pdf'), 'tutorial.pdf', 'application/pdf')
-    )
-  
-  
+  msg = createEmail(tolist=['ed.pascoe@gmail.com', 'testing@pascoe.co.za'] , subject="Testing", readreceipt=True, cclist='president@419.co.za, bob@419.co.za')
+  addAttachements(msg, (file('/usr/share/pixmaps/faces/sky.jpg'), 'sky.jpg', 'image/jpeg'),
+                      (file('/etc/hosts'), 'hosts', 'text/plain')
+                 )
+  #print msg.as_string()
+  sendMail('ed.pascoe@gmail.com', msg)
 
