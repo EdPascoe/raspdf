@@ -21,7 +21,7 @@ formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s"
 output = logging.StreamHandler()
 output.setFormatter(formatter)
 log.addHandler(output)
-log.setLevel(logging.info)
+log.setLevel(logging.INFO)
 
 log = logging.getLogger("root")
 
