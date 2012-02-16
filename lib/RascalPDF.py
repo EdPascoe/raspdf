@@ -34,7 +34,7 @@ from Point import Point, FontTracker
 import logging
 cm = inch/2.54
 
-log = logging.getLogger("root")
+log = logging.getLogger()
 
 import re, os, os.path, sys, tempfile 
 from copy import copy, deepcopy
@@ -44,6 +44,8 @@ from RasConfig import fileLocate
 cnstNORMAL = 0
 cnstBOLD = 1
 cnstITALIC = 2
+
+_ISYAMLTEMPLATE = 99 #Internal use only.
 
 class RascalPDFException(Exception):
   """Errors thrown by the PDF system"""
@@ -526,23 +528,34 @@ class PrintJob:
     """Feed data to the pdf job"""
     if not self.pdffile:
       self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
-    self._1stParse(fhandle)
-    self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
+    result = self._1stParse(fhandle)
+    if result == _ISYAMLTEMPLATE:
+      import YamlOffice  #Import as late as possible so we don't crash if openoffice is not installed.
+      #The old perl system used this: system("/usr/local/rascalprinting_test/yamloffice -o $t $vvv < $tf"); 
+      return YamlOffice.run(inputh=fhandle, output=self.pdffile.name)
+    else:
+      self.rascalpdf = RascalPDF(self.pdffile.name, pagesize=self.pagesize, isLandscape=self.landscape)
 
-    self.rascalpdf.info.producer = "xxpdf2 by Ed.Pascoe <ed@pascoe.co.za>"
-    self.rascalpdf.info.tile="Rascal document"
-    self.rascalpdf.info.subject="Rascal document"
+      self.rascalpdf.info.producer = "Raspdf by Ed Pascoe <ed@pascoe.co.za>"
+      self.rascalpdf.info.tile="Rascal document"
+      self.rascalpdf.info.subject="Rascal document"
 
-    self._2ndParse()
-    self.rascalpdf.canvas.save()
-    self.pdffile.flush()
+      self._2ndParse()
+      self.rascalpdf.canvas.save()
+      self.pdffile.flush()
     return True
 
   def _1stParse(self, fhandle):
     """Converts the incoming document into a series of functions to be executed"""
+    self.parser = None
+    line= fhandle.readline()
+
+    if line.find("YMLTEMPLATE") > -1: 
+      return _ISYAMLTEMPLATE 
+
     self.parser = _Parser()
     self.parser.addCommand('PRINTINIT')
-    for line in fhandle:
+    while len(line) > 0 :
       # -------- Strip any control characters -----------
       line = line.replace(chr(0x0f),'') # ^O
       line = line.replace(chr(0x1b),'') # ^[ Escape
@@ -554,11 +567,13 @@ class PrintJob:
 
       # convert the line into function calls for 2nd parse later.
       self.parser.parseLine(line)
+      line= fhandle.readline() #Get the next line.
     self.parser.addCommand('PRINTEND')
     lineno = 0
     for cmd in self.parser.cmdlist: 
       log.debug("Cmd: %s Line: %s", cmd, lineno)
       lineno +=1
+    return TRUE
 
   def _2ndParse(self):
     """Generate the actual print job."""
@@ -606,7 +621,6 @@ class PrintJob:
           kw[k.strip()] = v
     return (args, kw)
 
-    
 if __name__ == "__main__":
   #Enable logging
   formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")

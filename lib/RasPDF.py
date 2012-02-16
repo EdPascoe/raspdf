@@ -22,6 +22,7 @@ import socket
 from subprocess import *
 from cStringIO import StringIO
 
+logging.basicConfig(level=logging.ERROR) #Just define a baisc logger now to stop python 2.4 and older from complaining.
 import RascalPDF, RasConfig
 
 def main():
