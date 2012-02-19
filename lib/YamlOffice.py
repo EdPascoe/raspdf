@@ -536,8 +536,7 @@ class Options:
     return data
 
   def help(self):
-    print >>sys.stderr, '''Convert from and to any format supported by OpenOffice
-
+    print >>sys.stderr, """Convert from and to any format supported by OpenOffice
 unoconv options:
 -c, --connection=string  use a custom connection string
 -d, --doctype=type       specify document type
@@ -559,7 +558,7 @@ unoconv options:
   --show               list the available output formats
   --stdout             write output to stdout
 -v, --verbose            be more and more verbose
-'''
+"""
 
 class Convertor:
   docUpdateCallback=None
@@ -782,7 +781,6 @@ class Listener:
     else:
       die(253, "Existing listener found, aborting.")
 
-
 class DocUpdater:
   data={}
   converter = None
@@ -808,10 +806,9 @@ class DocUpdater:
     return oAddr
 
   def update(self,doc):
-    #error("Sheets: '%s'" % ( doc.getSheets()))
+    log.debug("DocUpdater.update")
     if self.data.has_key('startsheet'):
       self.sheet= doc.getSheets().getByName( self.data['startsheet'])
-      #error("found sheet for '%s': '%s'" % ( self.data['startsheet'],self.sheet))
     if self.data.has_key('data'):
       for k in self.data['data']:
         self.fieldUpdate(self.sheet,k,self.data['data'][k])
@@ -938,9 +935,11 @@ class DocUpdater:
     try:
       if isinstance(value,int) or isinstance(value,float):
         sheet.getCellRangeByName(fieldname).setValue(str(value))
+        log.debug("Field update %s - %s", fieldname, value)
       else:
         sheet.getCellRangeByName(fieldname).setString(str(value))
     except UnoException, e: #Probably means the cell name doesn't exist
+      log.info("Could not find field %s value: %s Error %s", fieldname, value, e)
       pass
 
 def error(str):

@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 *.old
+*.bak
 t
 pyinst
 PYTHONINSTALL

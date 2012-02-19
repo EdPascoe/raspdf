@@ -22,8 +22,6 @@ import socket
 from subprocess import *
 from cStringIO import StringIO
 
-logging.basicConfig(level=logging.ERROR) #Just define a baisc logger now to stop python 2.4 and older from complaining.
-import RascalPDF, RasConfig
 
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
@@ -47,7 +45,7 @@ def main():
 
   (options, args) = parser.parse_args()
 
-  log = logging.getLogger("root")
+  log = logging.getLogger()
 
   formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")
   output = logging.StreamHandler()
@@ -58,7 +56,9 @@ def main():
   if options.verbose:  log.setLevel(logging.INFO)
   if options.debug:  log.setLevel(logging.DEBUG)
 
-  start= time.time()
+  #Do the imports AFTER logging has been set up.
+  import RascalPDF, RasConfig 
+
   outfile = None
   if options.outputfile:
     outfile = options.outputfile
@@ -74,6 +74,7 @@ def main():
   if options.xxpdf: pagesize = (590, 890) # Use the old incorect page sizes from xxpdf.
   else: pagesize = reportlab.lib.pagesizes.A4
 
+  start= time.time()
   c = RascalPDF.PrintJob(output=outhandle, pagesize=pagesize, landscape=options.landscape)
     
   if args: c.feed(file(args[0]))
