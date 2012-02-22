@@ -103,7 +103,12 @@ subject = Generic rascal report
 mime = application/octet-stream
 filename = report.pdf
 message = Your report should be attached.
+;Ask for read receipts when sending mail.
+readreceipt = True
+;use the same broken page size code as xxpdf.
+xxpdf = True
 """
+  sys.exit(1)
 
 #
 #config = ConfigParser.ConfigParser()
