@@ -573,7 +573,7 @@ class PrintJob:
     for cmd in self.parser.cmdlist: 
       log.debug("Cmd: %s Line: %s", cmd, lineno)
       lineno +=1
-    return TRUE
+    return True
 
   def _2ndParse(self):
     """Generate the actual print job."""
