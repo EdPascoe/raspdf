@@ -534,7 +534,7 @@ class PrintJob:
       #The old perl system used this: system("/usr/local/rascalprinting_test/yamloffice -o $t $vvv < $tf"); 
       return YamlOffice.run(inputh=fhandle, output=self.pdffile.name)
     else:
-      self.rascalpdf = RascalPDF(self.pdffile.name, pagesize=self.pagesize, isLandscape=self.landscape)
+      self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 
       self.rascalpdf.info.producer = "Raspdf by Ed Pascoe <ed@pascoe.co.za>"
       self.rascalpdf.info.tile="Rascal document"
