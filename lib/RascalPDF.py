@@ -53,10 +53,9 @@ class RascalPDFException(Exception):
 class RascalPDF:
   """PDF library for use with rascal. Tries to be a compatible with the old perl xxpdf library"""
   canvas = None
-  font_size = 10 #Default font size
   #Margins
-  lmargin = 0.6*cm
-  tmargin = 0.8*cm
+  lmargin = 0.7 * cm
+  tmargin = 0.75 * cm
   bmargin = 1*cm
   lmarginDefault = None
   line="NOT YET INITITALIZED"
@@ -258,8 +257,10 @@ class RascalPDF:
 
   def right(self, c): 
     c= int(c)  #Zero based to match xxpdf
+    log.error("Before Right(%s) = Pos = %s", c, self.pos )
     if c < 0: c = 0
     self.pos.x =  int(self.lmargin + self.calcWidth("_"  * c ))
+    log.debug("After Right(%s) = Pos = %s", c, self.pos )
     
   def setLeftMargin(self, margin=None):
     """Set the left margin (indent level) in cm for future text. Default is to reset to starting margin."""
@@ -282,8 +283,10 @@ class RascalPDF:
       sys.exit(5)
     
   def moverelative(self, x, y):
+    log.error("Before MR(%s,%s) = Pos = %s", x, y, self.pos )
     self.pos.x += int(x);
-    self.pos.y += int(y);
+    self.pos.y -= int(y);
+    log.error("after MR(%s,%s) = Pos = %s", x, y, self.pos )
 
   def moveabsolute(self, x=None, y=None):
     """Move to given spot on page. x and y in cm"""

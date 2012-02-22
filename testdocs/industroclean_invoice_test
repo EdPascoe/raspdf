@@ -1,0 +1,90 @@
+
+                                                                 {$INCLUDE(wetheader.inc)}
+{$RIGHT(65)}{$SETFONT(7)}Reg No. 1968/008402/07  Vat No 4810108896         
+{$MR(2,-70)}{$B1}{$SF(14)}INDUSTRO-CLEAN PTY LTD                                        {$B0}{$SF(7)}
+{$MR(2,2)}1490 ZEISS ROAD * LASER PARK * HONEYDEW                       
+{$MR(2,2)}P O BOX 50273 * RANDBURG * SOUTH AFRICA * 2125                
+{$MR(2,3)}Tel: (014) 596 5127 Fax: (014) 596 5168  Email: sales@industroclean.co.za          {$B0}
+{$MR(2,3)}Web: www.industroclean.co.za {$B0}{$MR(1,68)}
+{$SF(9)}
+{$BOXS(9)}
+
+                                 {$SETFONT(14)}{$BOLDON} COPY TAX INVOICE IN440612     {$SETFONT(9)}{$BOLDOFF}
+
+
+ {$BOXS(1)}{$RIGHT(50)}{$BOXS(3)}{$RIGHT(65)}{$LINES(4)}{$RIGHT(80)}{$LINES(5)}
+   Deliver To                                        ACCOUNT NO  DOCUMENT NO    REP
+{$RIGHT(50)}{$LINES(1)}{$RIGHT(95)}{$LINEE(1)} {$RIGHT(130)}
+   PRONTO PANELBEATERS                               8031606     IN440612       40 
+   94 DAWES STREET                  {$RIGHT(65)}{$LINEE(4)}{$RIGHT(80)}{$LINEE(5)}{$RIGHT(95)}{$BOXE(3)}
+   RUSTENBURG                       
+                                     {$RIGHT(50)}{$BOXS(4)}{$RIGHT(65)}{$LINES(4)}{$RIGHT(80)}{$LINES(5)}
+{$RIGHT(40)}{$BOXE(1)}{$RIGHT(52)}REFERENCE NO DEL NOTE NO    INVOICE DATE
+{$RIGHT(50)}{$LINES(1)}{$RIGHT(95)}{$LINEE(1)}
+                                                    TEL          PS407358       22/02/12 
+{$RIGHT(65)}{$LINEE(4)}{$RIGHT(80)}{$LINEE(5)}{$RIGHT(95)}{$BOXE(4)}
+ {$BOXS(2)}{$RIGHT(50)}{$BOXS(5)}{$RIGHT(65)}{$LINES(4)}{$RIGHT(80)}{$LINES(5)}
+   Invoice To                                       ORDER NO     DATE
+{$RIGHT(50)}{$LINES(1)}{$RIGHT(95)}{$LINEE(1)}
+                                                    JACKIE       22/02/12                 
+   PRONTO PANELBEATERS              {$RIGHT(65)}{$LINEE(4)}{$RIGHT(80)}{$LINEE(5)} {$RIGHT(95)}{$BOXE(5)}
+   94 DAWES STREET                  
+   RUSTENBURG                                         PAGE   1
+                                                 IF PAYING C.O.D. BY EFT PLEASE USE INVOICE      
+                                                 NUMBER OR YOUR COMPANY NAME AS THE REFERENCE.   
+                                                 PLEASE NOTE: WE ARE NO LONGER ACCEPTING CHEQUES 
+                                                 AS A METHOD OF PAYMENT                          
+   YOUR VAT NO 4320116074           
+{$RIGHT(40)}{$BOXE(2)}
+                                                      CASH SALES        
+{$LINES(3)}{$RIGHT(104)}{$LINEE(3)}
+{$SF(8)}  IN ITEM NO       ORD      PRODUCT DESCRIPTION                                   DEL     PRICE  DISCOUNT   EXCLUSIVE{$SF(9)}
+{$LINES(3)}{$RIGHT(104)}{$LINEE(3)}
+{$SF(8)}   1 01642         1.0      13 INDUSCRUB LF CLEANER 5L                            1.0     98.00      0.00       98.00
+{$SF(8)}                                                                                                           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                             CONTACT: JACKIE                TEL: 014 596 5727 
+
+
+                                                                                                   NETT         98.00
+
+                 TR14                                                                              VAT          13.72
+
+                             BANK STANDARD BANK     BRANCH 00-42-05-   A/C 001955241     
+    SALESMAN TO DELIVER       00                                                               {$B1}    TOTAL       111.72
+
+                    SIGNED                     DATE{$B0}
+
+
+                    ______________             _____________
+
+
+
+{$SF(9)}
+{$RIGHT(104)}{$BOXE(9)}
+{$SF(7)}{$B1}Printed By : TR14 on 22/02/12 at 12:22:52 {$B0}
+{$NEWPAGE}

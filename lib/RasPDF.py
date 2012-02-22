@@ -24,9 +24,9 @@ from cStringIO import StringIO
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
   import RasConfig
-  readreceipt = RasConfig.get_default('global','readreceipt', None) 
+  readreceipt = RasConfig.get_default('global','readreceipt', "False") 
   readreceipt = True if (readreceipt.lower() == "true" or readreceipt.lower() == "1") else False
-  xxpdf = RasConfig.get_default('global','xxpdf', None) #Replicate the xxpdf bug.
+  xxpdf = RasConfig.get_default('global','xxpdf', "False") #Replicate the xxpdf bug.
   xxpdf = True if (xxpdf.lower() == "true" or xxpdf.lower() == "1") else False
 
   usage = "Usage: %prog [<options>] \n" + __doc__+"\n"
@@ -88,7 +88,19 @@ def main():
   log.info("Render time: %s seconds" % (stop - start))
   
   if options.evince:
-    os.system("evince %s" % (outfile))
+    if outfile is None:
+      tf = tempfile.NamedTemporaryFile(suffix='.pdf' ) #Create a temporary file name. (WARNING THERE Is a risk of a race condition here )
+      outfile = tf.name
+      log.debug("Temporary outfile: %s", outfile)
+      tf.close()
+      f=file(outfile,"w")
+      outhandle.seek(0)
+      f.write(outhandle.read())
+      f.flush()
+      f.close()
+      
+    log.debug("OUTFILE: %s", outfile)
+    os.system("xdg-open %s" % (outfile))
 
   if options.zmodem:
     if not options.tty: options.tty=os.environ['TTY']
