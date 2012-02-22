@@ -16,7 +16,8 @@ import os, os.path
 rd = __file__
 while os.path.islink(rd): rd = os.path.dirname(os.path.abspath(os.readlink(rd)))
 rd = os.path.abspath(rd)
-for d in [ os.path.join(rd, 'lib'), '/usr/local/raspdf/lib', '/usr/lib/raspdf' ]:
+#Try calculate or guess a library path to use.
+for d in [ os.path.join(rd, 'lib'), '/rascal/raspdf/lib', '/usr/local/raspdf/lib', '/usr/lib/raspdf' ]:
   if os.path.exists(d) and not d in sys.path:  
     sys.path.append(d)
     break #Use the first path that matches.
