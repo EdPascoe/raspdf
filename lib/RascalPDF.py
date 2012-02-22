@@ -83,7 +83,8 @@ class RascalPDF:
     self.linelist = {} # for drawing lines
 
     self.start_newpage = 1;
-    self.printingbegun = False;
+    self.printingBegun = False
+    self.showPageNeeded = False #Next output command should do a show page
 
     self.picturelist_key = {}
     self.picturelist_h = {}
@@ -317,6 +318,7 @@ class RascalPDF:
     log.debug("box start Position: %s", self.pos)
 
   def  boxend(self, boxname=0):
+    self.showPageIfNeeded() 
     if not self.boxlist.has_key(boxname):
       return
     s = self.boxlist[boxname]
@@ -327,6 +329,7 @@ class RascalPDF:
 
   def boxendround(self, boxname=0):
     """Complete a box with rounded corners"""
+    self.showPageIfNeeded() 
     if not self.boxlist.has_key(boxname): return
 
     s = self.boxlist[boxname]
@@ -340,6 +343,7 @@ class RascalPDF:
     self.linelist[linename] = deepcopy(self.pos)
 
   def lineend(self, linename=0):
+    self.showPageIfNeeded() 
     s= self.linelist.get(linename, None)
     if s is None: return
     x1 = s.x
@@ -393,17 +397,21 @@ class RascalPDF:
     self.start_newpage = 1
     self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
     log.debug("newPage %s", self.pos)
-    self.canvas.showPage()
-
-  def real_newPage(self):
-    """This does the real newpage
-    """
-    self.start_newpage = 0;
-    if (self.printingbegun):
-     log.debug("real_newPage")
-     self.canvas.showPage()
+    if self.printingBegun:
+      self.showPageNeeded = True #Next output command should generate a showpage.
+      self.printingBegun = False;
     else:
-     self.printingbegun=True;
+      log.debug("newPage called but nothing has been printed on this page so far")
+
+  def showPageIfNeeded(self):
+    """ This is needed to prevent blank pages at end of doc. 
+        Typically a final newPage gets called but there is nothing waiting.
+    """
+    if self.showPageNeeded:
+      self.showPageNeeded = False
+      self.canvas.showPage()
+    else:
+      self.printingBegun = True
 
   def calcTextWidth(self, line):
     return self.calcWidth(line);
@@ -432,6 +440,8 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
 
   def print_string(self, msg):
     """Prints string on page at current cursor location."""
+    self.showPageIfNeeded() 
+
     textobject = self.canvas.beginText()
     self.canvas.setFont(self.font.getFontName(), self.font.size) 
     log.debug(" self.canvas.drawText%s, %s)", self.pos, msg)
@@ -439,6 +449,7 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
 
   def picture(self, fname, imgwidth=None, imgheight=None):
     """Insert picture into pdf. If imgwidth and imgheight are not none they will be used to reposition the cursor after the insert."""
+    self.showPageIfNeeded() 
     x = int(self.pos.x)
     y = int(self.pos.y)
     if imgwidth:
