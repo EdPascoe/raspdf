@@ -91,6 +91,17 @@ def items(section, raw=False, vars=None):
   except NoSectionError:
     return []
 
+def getBool(section, option, default=False):
+  """Returns a boolean from the config."""
+  v = get_default(section,option, None) 
+  if v is None:
+    return default
+  if isinstance(v, basestring): v= v.lower()
+  if v == "false" or v == "0" or v == False or v == "no" or v == "off" or v == "disabled":
+    return False
+  else:
+    return True
+
 _initSearchLocations() #Build the search paths for finding files later.
 
 xmmail = ConfigParser()

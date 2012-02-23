@@ -24,10 +24,8 @@ from cStringIO import StringIO
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
   import RasConfig
-  readreceipt = RasConfig.get_default('global','readreceipt', "False") 
-  readreceipt = True if (readreceipt.lower() == "true" or readreceipt.lower() == "1") else False
-  xxpdf = RasConfig.get_default('global','xxpdf', "False") #Replicate the xxpdf bug.
-  xxpdf = True if (xxpdf.lower() == "true" or xxpdf.lower() == "1") else False
+  readreceipt = RasConfig.getBool('global','readreceipt')
+  xxpdf = RasConfig.getBool('global','xxpdf')
 
   usage = "Usage: %prog [<options>] \n" + __doc__+"\n"
   parser = optparse.OptionParser(usage)
