@@ -39,7 +39,7 @@ import getopt, sys, os, glob, time, socket, subprocess
 
 #TSF Imports
 import yaml, types, logging
-log=logging.getLogger("YamlOfice")
+log = logging.getLogger("YamlOfice")
 
 global convertor, oobin, oobinpath, oolibpath, ooproc
 
@@ -64,16 +64,16 @@ extrapaths = glob.glob('/usr/lib*/openoffice*/program') + \
              glob.glob('/opt/bin')
 
 if 'ProgramFiles' in os.environ.keys():
-  extrapaths += glob.glob(os.environ['ProgramFiles']+'\\OpenOffice.org*\\URE\\bin') + \
-                glob.glob(os.environ['ProgramFiles']+'\\OpenOffice.org*\\program') + \
-                glob.glob(os.environ['ProgramFiles']+'\\OpenOffice.org*\\Basis*\\program')
+  extrapaths += glob.glob(os.environ['ProgramFiles'] + '\\OpenOffice.org*\\URE\\bin') + \
+                glob.glob(os.environ['ProgramFiles'] + '\\OpenOffice.org*\\program') + \
+                glob.glob(os.environ['ProgramFiles'] + '\\OpenOffice.org*\\Basis*\\program')
 
 if 'ProgramFiles(x86)' in os.environ.keys():
-  extrapaths += glob.glob(os.environ['ProgramFiles(x86)']+'\\OpenOffice.org*\\URE\\bin') + \
-                glob.glob(os.environ['ProgramFiles(x86)']+'\\OpenOffice.org*\\program') + \
-                glob.glob(os.environ['ProgramFiles(x86)']+'\\OpenOffice.org*\\Basis*\\program')
+  extrapaths += glob.glob(os.environ['ProgramFiles(x86)'] + '\\OpenOffice.org*\\URE\\bin') + \
+                glob.glob(os.environ['ProgramFiles(x86)'] + '\\OpenOffice.org*\\program') + \
+                glob.glob(os.environ['ProgramFiles(x86)'] + '\\OpenOffice.org*\\Basis*\\program')
 
-binaries = ( 'soffice.bin', 'soffice', 'soffice.exe' )
+binaries = ('soffice.bin', 'soffice', 'soffice.exe')
 
 try:
   import uno, unohelper
@@ -93,12 +93,12 @@ except ImportError:
       break
     except ImportError, e:
       sys.path.remove(oolibpath)
-      print >>sys.stderr, e
-      print >>sys.stderr, "WARNING: Found %s in %s, but could not import it." % (filename, oolibpath)
+      print >> sys.stderr, e
+      print >> sys.stderr, "WARNING: Found %s in %s, but could not import it." % (filename, oolibpath)
       continue
   else:
-    print >>sys.stderr, "unoconv: Cannot find the pyuno library in sys.path and known paths."
-    print >>sys.stderr, "ERROR: Please locate this library and send your feedback to: <tools@lists.rpmforge.net>."
+    print >> sys.stderr, "unoconv: Cannot find the pyuno library in sys.path and known paths."
+    print >> sys.stderr, "ERROR: Please locate this library and send your feedback to: <tools@lists.rpmforge.net>."
     sys.exit(1)
 
 oobin = None
@@ -112,8 +112,8 @@ for oobinpath in extrapaths:
   if oobin:
     break
 else:
-  print >>sys.stderr, "unoconv: Cannot find the soffice binary in sys.path and known paths."
-  print >>sys.stderr, "ERROR: Please locate this binary and send your feedback to: <tools@lists.rpmforge.net>."
+  print >> sys.stderr, "unoconv: Cannot find the soffice binary in sys.path and known paths."
+  print >> sys.stderr, "ERROR: Please locate this binary and send your feedback to: <tools@lists.rpmforge.net>."
   sys.exit(1)
 
 ### Export an environment that OpenOffice is pleased to work with
@@ -180,23 +180,23 @@ class FmtList:
     return ret
 
   def display(self, doctype):
-    print >>sys.stderr, "The following list of %s formats are currently available:\n" % doctype
+    print >> sys.stderr, "The following list of %s formats are currently available:\n" % doctype
     for fmt in self.list:
       if fmt.doctype == doctype:
-        print >>sys.stderr, "  %-8s - %s" % (fmt.name, fmt)
-    print >>sys.stderr
+        print >> sys.stderr, "  %-8s - %s" % (fmt.name, fmt)
+    print >> sys.stderr
 
-class OutputStream( unohelper.Base, XOutputStream ):
-  def __init__( self ):
+class OutputStream(unohelper.Base, XOutputStream):
+  def __init__(self):
     self.closed = 0
 
   def closeOutput(self):
     self.closed = 1
 
-  def writeBytes( self, seq ):
-    sys.stdout.write( seq.value )
+  def writeBytes(self, seq):
+    sys.stdout.write(seq.value)
 
-  def flush( self ):
+  def flush(self):
     pass
 
 fmts = FmtList()
@@ -227,7 +227,7 @@ fmts.add('document', 'sxw', 'sxw', 'Open Office.org 1.0 Text Document', 'StarOff
 fmts.add('document', 'text', 'txt', 'Text Encoded', 'Text (encoded)') ### 26
 fmts.add('document', 'mediawiki', 'txt', 'MediaWiki', 'MediaWiki')
 fmts.add('document', 'txt', 'txt', 'Text', 'Text') ### 34
-fmts.add('document', 'uot', 'uot', 'Unified Office Format text','UOF text') ### 27
+fmts.add('document', 'uot', 'uot', 'Unified Office Format text', 'UOF text') ### 27
 fmts.add('document', 'vor', 'vor', 'StarWriter 5.0 Template', 'StarWriter 5.0 Vorlage/Template') ### 6
 fmts.add('document', 'vor4', 'vor', 'StarWriter 4.0 Template', 'StarWriter 4.0 Vorlage/Template') ### 5
 fmts.add('document', 'vor3', 'vor', 'StarWriter 3.0 Template', 'StarWriter 3.0 Vorlage/Template') ### 4
@@ -375,7 +375,7 @@ class Options:
           ['connection=', 'doctype=', 'export', 'format=', 'help',
            'import', 'listener', 'outputpath=', 'pipe=', 'port=',
            'server=', 'timeout=', 'show', 'stdout', 'template',
-           'verbose', 'version'] )
+           'verbose', 'version'])
     except getopt.error, exc:
       print 'unoconv: %s, try unoconv -h for a list of all the options' % str(exc)
       sys.exit(255)
@@ -395,13 +395,13 @@ class Options:
         if len(l) == 2:
           (name, value) = l
           if value in ('True', 'true'):
-            self.exportfilter.append( PropertyValue( name, 0, True, 0 ) )
+            self.exportfilter.append(PropertyValue(name, 0, True, 0))
           elif value in ('False', 'false'):
-            self.exportfilter.append( PropertyValue( name, 0, False, 0 ) )
+            self.exportfilter.append(PropertyValue(name, 0, False, 0))
           else:
-            self.exportfilter.append( PropertyValue( name, 0, value, 0 ) )
+            self.exportfilter.append(PropertyValue(name, 0, value, 0))
         else:
-          print >>sys.stderr, 'Warning: Option %s cannot be parsed, ignoring.' % arg
+          print >> sys.stderr, 'Warning: Option %s cannot be parsed, ignoring.' % arg
       elif opt in ['-f', '--format']:
         self.format = arg
       elif opt in ['-i', '--import']:
@@ -421,7 +421,7 @@ class Options:
       elif opt in ['--stdout']:
         self.stdout = True
       elif opt in ['-y'] :
-        self.yaml=arg
+        self.yaml = arg
       elif opt in ['-t', '--template']:
         self.template = arg
       elif opt in ['-T', '--timeout']:
@@ -434,7 +434,7 @@ class Options:
 
     ### Enable verbosity
     if self.verbose >= 3:
-      print >>sys.stderr, 'Verbosity set to level %d' % (self.verbose - 1)
+      print >> sys.stderr, 'Verbosity set to level %d' % (self.verbose - 1)
 
     self.filenames = args
 
@@ -442,8 +442,8 @@ class Options:
       self.loadyaml()
 
     if not self.listener and not self.showlist and self.doctype != 'list' and not self.filenames:
-      print >>sys.stderr, 'unoconv: you have to provide a filename as argument'
-      print >>sys.stderr, 'Try `unoconv -h\' for more information.'
+      print >> sys.stderr, 'unoconv: you have to provide a filename as argument'
+      print >> sys.stderr, 'Try `unoconv -h\' for more information.'
       sys.exit(255)
 
     ### Set connection string
@@ -453,8 +453,8 @@ class Options:
 #               self.connection = "socket,host=%s,port=%s;urp;" % (self.server, self.port)
       else:
         self.connection = "pipe,name=%s;urp;StarOffice.ComponentContext" % (self.pipe)
-      if self.verbose >=3:
-        print >>sys.stderr, 'Connection type: %s' % self.connection
+      if self.verbose >= 3:
+        print >> sys.stderr, 'Connection type: %s' % self.connection
 
     ### Make it easier for people to use a doctype (first letter is enough)
     if self.doctype:
@@ -490,53 +490,53 @@ class Options:
     print 'build revision $Rev$'
 
   def usage(self):
-    print >>sys.stderr, 'usage: unoconv [options] file [file2 ..]'
+    print >> sys.stderr, 'usage: unoconv [options] file [file2 ..]'
 
   def loadyaml(self):
     """Loads the yaml command file"""
     if self.listener or self.showlist: return #NO yaml in listen mode or list mode
-    y=self.yaml
-    if y=="-":
-      self.yaml=yaml.load(sys.stdin)
+    y = self.yaml
+    if y == "-":
+      self.yaml = yaml.load(sys.stdin)
     else:
       if isinstance(self.yaml, file) or isinstance(self.yaml, object):
         self.yaml = yaml.load(self.yaml)
       else:
-        f=file(self.yaml,"r")
-        self.yaml=yaml.load(f)
+        f = file(self.yaml, "r")
+        self.yaml = yaml.load(f)
         f.close()
-    self.yaml=self.fixRascalYaml(self.yaml)
+    self.yaml = self.fixRascalYaml(self.yaml)
     if not self.filenames:
       if self.yaml.has_key('template'):
-        self.filenames=[self.yaml['template']]
+        self.filenames = [self.yaml['template']]
 
-  def fixRascalYaml(self,data):
+  def fixRascalYaml(self, data):
     """Rascal string handling is terrible so everything ends up getting quoted. This routine converts numbers back to numbers"""
-    if not isinstance(data,dict):
+    if not isinstance(data, dict):
       return data
     for key in data.keys():
       if not data[key]:continue
-      if isinstance(data[key],types.ListType):
+      if isinstance(data[key], types.ListType):
         fixedlist = []
         for v in data[key]:
           fixedlist.append(self.fixRascalYaml(v))
-          data[key]=fixedlist
-      elif isinstance(data[key],dict):
-        data[key]=self.fixRascalYaml(data[key])
+          data[key] = fixedlist
+      elif isinstance(data[key], dict):
+        data[key] = self.fixRascalYaml(data[key])
       else:
-        v=data[key]
+        v = data[key]
         try:
-          v=float(v) #Convert to a floating point.
-          if int(v)==v: v=int(v)  #We can actually use an integer
-          data[key]=v
+          v = float(v) #Convert to a floating point.
+          if int(v) == v: v = int(v)  #We can actually use an integer
+          data[key] = v
         except ValueError: continue #Must be a string
         except TypeError:
-          sys.stderr.write("Oops. can't process key '%s' type: %s\n" % (key,type(v)))
+          sys.stderr.write("Oops. can't process key '%s' type: %s\n" % (key, type(v)))
           continue
     return data
 
   def help(self):
-    print >>sys.stderr, """Convert from and to any format supported by OpenOffice
+    print >> sys.stderr, """Convert from and to any format supported by OpenOffice
 unoconv options:
 -c, --connection=string  use a custom connection string
 -d, --doctype=type       specify document type
@@ -561,7 +561,7 @@ unoconv options:
 """
 
 class Convertor:
-  docUpdateCallback=None
+  docUpdateCallback = None
   def __init__(self):
     global exitcode, ooproc, oobin, oolibpath
     unocontext = None
@@ -609,8 +609,8 @@ class Convertor:
     ### And some more OpenOffice magic
     unosvcmgr = unocontext.ServiceManager
     self.desktop = unosvcmgr.createInstanceWithContext("com.sun.star.frame.Desktop", unocontext)
-    self.config = unosvcmgr.createInstanceWithContext( "com.sun.star.configuration.ConfigurationProvider", unocontext)
-    self.cwd = unohelper.systemPathToFileUrl( os.getcwd() )
+    self.config = unosvcmgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider", unocontext)
+    self.cwd = unohelper.systemPathToFileUrl(os.getcwd())
 
   def getformat(self, inputfn):
     doctype = None
@@ -644,9 +644,9 @@ class Convertor:
     ### No format found, throw error
     if not outputfmt:
       if doctype:
-        print >>sys.stderr, 'unoconv: format [%s/%s] is not known to unoconv.' % (op.doctype, op.format)
+        print >> sys.stderr, 'unoconv: format [%s/%s] is not known to unoconv.' % (op.doctype, op.format)
       else:
-        print >>sys.stderr, 'unoconv: format [%s] is not known to unoconv.' % op.format
+        print >> sys.stderr, 'unoconv: format [%s] is not known to unoconv.' % op.format
       die(1)
 
     return outputfmt
@@ -658,22 +658,22 @@ class Convertor:
     outputfmt = self.getformat(inputfn)
 
     if op.verbose > 0:
-      print >>sys.stderr, 'Input file:', inputfn
+      print >> sys.stderr, 'Input file:', inputfn
 
     if not os.path.exists(inputfn):
-      print >>sys.stderr, 'unoconv: file `%s\' does not exist.' % inputfn
+      print >> sys.stderr, 'unoconv: file `%s\' does not exist.' % inputfn
       exitcode = 1
 
     try:
       ### Load inputfile
       inputprops = (
-          PropertyValue( "Hidden", 0, True, 0 ),
-          PropertyValue( "ReadOnly", 0, True, 0 ),
-          PropertyValue( "FilterOptions", 0, op.importfilter, 0 ),
+          PropertyValue("Hidden", 0, True, 0),
+          PropertyValue("ReadOnly", 0, True, 0),
+          PropertyValue("FilterOptions", 0, op.importfilter, 0),
       )
 
       inputurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(inputfn))
-      doc = self.desktop.loadComponentFromURL( inputurl , "_blank", 0, inputprops )
+      doc = self.desktop.loadComponentFromURL(inputurl , "_blank", 0, inputprops)
 
       if not doc:
         raise UnoException("File could not be loaded by OpenOffice", None)
@@ -682,14 +682,14 @@ class Convertor:
       if op.template:
         if os.path.exists(op.template):
           if op.verbose > 0:
-            print >>sys.stderr, 'Template file:', op.template
+            print >> sys.stderr, 'Template file:', op.template
           templateprops = (
-              PropertyValue( "OverwriteStyles", 0, True, 0),
+              PropertyValue("OverwriteStyles", 0, True, 0),
           )
           templateurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(op.template))
           doc.StyleFamilies.loadStylesFromURL(templateurl, templateprops)
         else:
-          print >>sys.stderr, 'unoconv: template file `%s\' does not exist.' % op.template
+          print >> sys.stderr, 'unoconv: template file `%s\' does not exist.' % op.template
           exitcode = 1
 
       info(1, "Selected output format: %s" % outputfmt)
@@ -721,15 +721,15 @@ class Convertor:
       ### Write outputfile
       outputprops = [
 #                PropertyValue( "FilterData" , 0, ( PropertyValue( "SelectPdfVersion" , 0, 1 , uno.getConstantByName( "com.sun.star.beans.PropertyState.DIRECT_VALUE" ) ) ), uno.getConstantByName( "com.sun.star.beans.PropertyState.DIRECT_VALUE" ) ),
-          PropertyValue( "FilterData", 0, uno.Any("[]com.sun.star.beans.PropertyValue", tuple( op.exportfilter ), ), 0 ),
-          PropertyValue( "FilterName", 0, outputfmt.filter, 0),
+          PropertyValue("FilterData", 0, uno.Any("[]com.sun.star.beans.PropertyValue", tuple(op.exportfilter),), 0),
+          PropertyValue("FilterName", 0, outputfmt.filter, 0),
 #                PropertyValue( "SelectionOnly", 0, True, 0 ),
-          PropertyValue( "OutputStream", 0, OutputStream(), 0 ),
-          PropertyValue( "Overwrite", 0, True, 0 ),
+          PropertyValue("OutputStream", 0, OutputStream(), 0),
+          PropertyValue("Overwrite", 0, True, 0),
       ]
 
       if outputfmt.filter == 'Text (encoded)':
-        outputprops.append(PropertyValue( "FilterFlags", 0, "UTF8, LF", 0))
+        outputprops.append(PropertyValue("FilterFlags", 0, "UTF8, LF", 0))
 
       if not op.stdout:
         (outputfn, ext) = os.path.splitext(inputfn)
@@ -741,12 +741,12 @@ class Convertor:
           else: #TSF
             outputfn = op.outputpath #TSF
             log.error("Outputfn: %s", outputfn) #TSF
-        outputurl = unohelper.absolutize( self.cwd, unohelper.systemPathToFileUrl(outputfn) )
+        outputurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(outputfn))
         log.error("Storing to %s Outputfn: %s" , outputurl, outputfn)
-        doc.storeToURL(outputurl, tuple(outputprops) )
+        doc.storeToURL(outputurl, tuple(outputprops))
         info(1, "Output file: %s" % outputfn)
       else:
-        doc.storeToURL("private:stream", tuple(outputprops) )
+        doc.storeToURL("private:stream", tuple(outputprops))
 
       doc.dispose()
       doc.close(True)
@@ -782,21 +782,21 @@ class Listener:
       die(253, "Existing listener found, aborting.")
 
 class DocUpdater:
-  data={}
+  data = {}
   converter = None
-  def __init__(self,data,converter=None):
-    self.data=data
+  def __init__(self, data, converter=None):
+    self.data = data
     error('In DocUpdater init')
     if converter:
       self.converter = converter
 
-  def getCurrentRegion(self,oRange):
+  def getCurrentRegion(self, oRange):
     """Get current region around given range."""
     oCursor = oRange.getSpreadsheet().createCursorByRange(oRange)
     oCursor.collapseToCurrentRegion()
     return oCursor
 
-  def getCurrentColumnsAddress(self,oRange):
+  def getCurrentColumnsAddress(self, oRange):
     """Get address of intersection between range and current region's columns"""
     oCurrent = oRange #self.getCurrentRegion(oRange)
     oAddr = oRange.getRangeAddress()
@@ -805,15 +805,17 @@ class DocUpdater:
     oAddr.EndColumn = oCurrAddr.EndColumn
     return oAddr
 
-  def update(self,doc):
+  def update(self, doc):
     log.debug("DocUpdater.update")
     if self.data.has_key('startsheet'):
-      self.sheet= doc.getSheets().getByName( self.data['startsheet'])
+      self.sheet = doc.getSheets().getByName(self.data['startsheet'])
+    else:
+      self.sheet = doc.getSheets().getByIndex(0) #Just use the first sheet. 
     if self.data.has_key('data'):
       for k in self.data['data']:
-        self.fieldUpdate(self.sheet,k,self.data['data'][k])
+        self.fieldUpdate(self.sheet, k, self.data['data'][k])
     if self.data.has_key('insert'): #If we have a section with data to insert into the spreadsheet
-      self.updateInserts(doc,self.data['insert'])
+      self.updateInserts(doc, self.data['insert'])
     log.debug("Looking for images")
     if self.data.has_key('images') and self.data['images'] is not None:
       log.debug("Has images")
@@ -821,88 +823,88 @@ class DocUpdater:
         log.debug("Details: %s ", imageDetails)
         self.insertImage(doc, self.sheet, imageDetails['location'], imageDetails['filename'])
 
-  def updateInserts(self,doc,insertdata):
+  def updateInserts(self, doc, insertdata):
     """Update the spreadsheet with any insert information"""
-    if (isinstance(insertdata,types.DictionaryType)):
-      return self.updateInserts(doc,[insertdata]) #Only a single insert, turn it into a list so we can standardise the code
+    if (isinstance(insertdata, types.DictionaryType)):
+      return self.updateInserts(doc, [insertdata]) #Only a single insert, turn it into a list so we can standardise the code
     rowsinserted = 0
     for insertrecord in insertdata:
       sys.stderr.write("updateInserts: %s\n" % (type(insertrecord)))
       #Start inserting the data, Starting at top level (0)
       data = self.data[insertrecord['data']]
-      if isinstance(data,types.ListType):
-        currentsheet=self.sheet #Save the sheet so we can move around with out worrying
-        if insertrecord.has_key("startsheet"): self.sheet= doc.getSheets().getByName(insertrecord['startsheet'])
-        rowsinserted += self.updateInsertsSection(data,insertrecord,0)
+      if isinstance(data, types.ListType):
+        currentsheet = self.sheet #Save the sheet so we can move around with out worrying
+        if insertrecord.has_key("startsheet"): self.sheet = doc.getSheets().getByName(insertrecord['startsheet'])
+        rowsinserted += self.updateInsertsSection(data, insertrecord, 0)
         self.sheet = currentsheet #Move back to the correct sheet incase it was changed
       else:
         sys.stderr.write("Could not handle record of type '%s'\n" % (type(data)))
         raise Exception("Bloody idiot")
     return rowsinserted
-  def updateInsertsSection(self,data,insertrecord,grouplevel=0):
-    sys.stderr.write("updateInsertsSection: %s len: %s\n" % (type(data),len(data)))
-    rowsinserted=0
+  def updateInsertsSection(self, data, insertrecord, grouplevel=0):
+    sys.stderr.write("updateInsertsSection: %s len: %s\n" % (type(data), len(data)))
+    rowsinserted = 0
     try:
       for datarow in data:
-        sys.stderr.write("datarow: %s len: %s\n" % (type(datarow),len(datarow)))
+        sys.stderr.write("datarow: %s len: %s\n" % (type(datarow), len(datarow)))
         sys.stderr.write(yaml.dump(datarow))
         sys.stderr.write("\n\n")
-        if isinstance(datarow,types.ListType):
+        if isinstance(datarow, types.ListType):
             #One level down data, pass it down the chain:
-          rowsinserted += self.updateInsertsSection(datarow,insertrecord,grouplevel+1)
+          rowsinserted += self.updateInsertsSection(datarow, insertrecord, grouplevel + 1)
           continue
 
         #print "%s    Testing(%s): %s - %s" % ("-----" * grouplevel, grouplevel,type(datarow),insertrecord)
         if insertrecord.has_key("fields%s" % (grouplevel)):
           fieldlist = insertrecord["fields%s" % (grouplevel)] #fields we need to display
-          if not isinstance(fieldlist,types.ListType): fieldlist=[fieldlist] #Change it from a string to a list
-          oRange = self.sheet.getCellRangeByName( insertrecord['insertpoint'] ).getRangeAddress()
+          if not isinstance(fieldlist, types.ListType): fieldlist = [fieldlist] #Change it from a string to a list
+          oRange = self.sheet.getCellRangeByName(insertrecord['insertpoint']).getRangeAddress()
           #oSel = doc.getCurrentSelection()
           self.sheet.insertCells(oRange, ROWS) #Insert a blank row
-          rowsinserted +=1  #Track the number of new rows inserted
-          x=oRange.StartColumn
-          y=oRange.StartRow
-          offset=0
+          rowsinserted += 1  #Track the number of new rows inserted
+          x = oRange.StartColumn
+          y = oRange.StartRow
+          offset = 0
           print "Fieldlist: %s" % (fieldlist)
           for fieldname in fieldlist: #Insert all the values
-            self.fieldUpdateByPos(self.sheet,x+offset,y,datarow[fieldname])
-            offset+=1
+            self.fieldUpdateByPos(self.sheet, x + offset, y, datarow[fieldname])
+            offset += 1
 
         else:
           sys.stderr.write("No fields for group %s\n" % (grouplevel))
-    except ValueError,ex:
-      sys.stderr.write("Data broken.\nInsertrecord:%s\nDataType:%s\n Grouplevel:%s\n" %( insertrecord,type(data),grouplevel))
+    except ValueError, ex:
+      sys.stderr.write("Data broken.\nInsertrecord:%s\nDataType:%s\n Grouplevel:%s\n" % (insertrecord, type(data), grouplevel))
       sys.stderr.write("%s\n\n" % (ex))
       raise ex
 
     #Code to group and hide rows
-    if self._insertrecord_hasgroup(insertrecord,grouplevel):
-      sys.stderr.write("Grouping level %s %s rows\n" % (grouplevel,rowsinserted))
-      oRange = self.sheet.getCellRangeByName( insertrecord['insertpoint'] ).getRangeAddress()
-      x=oRange.StartColumn
-      y=oRange.StartRow
-      groupRange = self.sheet.getCellRangeByName( insertrecord['insertpoint'] ).getRangeAddress()
+    if self._insertrecord_hasgroup(insertrecord, grouplevel):
+      sys.stderr.write("Grouping level %s %s rows\n" % (grouplevel, rowsinserted))
+      oRange = self.sheet.getCellRangeByName(insertrecord['insertpoint']).getRangeAddress()
+      x = oRange.StartColumn
+      y = oRange.StartRow
+      groupRange = self.sheet.getCellRangeByName(insertrecord['insertpoint']).getRangeAddress()
       groupRange.StartRow = y - rowsinserted #The point where we started inserting data
-      groupRange.EndColumn= y - 1 #Move up one row from the cell name
-      self.sheet.group(groupRange,TABLEROWS)
+      groupRange.EndColumn = y - 1 #Move up one row from the cell name
+      self.sheet.group(groupRange, TABLEROWS)
       self.sheet.hideDetail(groupRange)
 
     return rowsinserted
-  def _insertrecord_hasgroup(self,insertrecord,grouplevel):
+  def _insertrecord_hasgroup(self, insertrecord, grouplevel):
     """Returns true if data at grouplevel should be grouped and hidden"""
-    sys.stderr.write("_insertrecord_hasgroup GroupLevel: %s  Groups: %s\n" % (grouplevel,insertrecord['group']))
+    sys.stderr.write("_insertrecord_hasgroup GroupLevel: %s  Groups: %s\n" % (grouplevel, insertrecord['group']))
     if not insertrecord.has_key('group'): return False #Not group list so nothing must be grouped
     groups = insertrecord['group']
-    if not isinstance(groups,types.ListType): groups=[groups] #Convert the groups to a list if needby
+    if not isinstance(groups, types.ListType): groups = [groups] #Convert the groups to a list if needby
     try:
       i = groups.index(grouplevel)
     except TypeError:
-      print "Failure, grouplevel: %s Type: %s Groups %s" % (grouplevel,type(grouplevel),groups)
+      print "Failure, grouplevel: %s Type: %s Groups %s" % (grouplevel, type(grouplevel), groups)
       raise
     except ValueError: return False #We shouldn't group this level
     return True
 
-  def fieldGoto(self,sheet,fieldname):
+  def fieldGoto(self, sheet, fieldname):
     return (sheet.getCellRangeByName(fieldname))
 
   def insertImage(self, doc, sheet, imageposition, filename):
@@ -912,9 +914,9 @@ class DocUpdater:
       return False
     #sheet.getCellRangeByName(ipos).GoToCell()
     imgfile = unohelper.systemPathToFileUrl(filename)
-    log.debug( "doc: %s ", type(doc))
-    log.debug( "sheet: %s  " ,type(sheet))
-    log.debug( "pos: %s fname: %s" ,imageposition, filename)
+    log.debug("doc: %s ", type(doc))
+    log.debug("sheet: %s  " , type(sheet))
+    log.debug("pos: %s fname: %s" , imageposition, filename)
 
     dispatcher = self.converter.unosvcmgr.createInstance('com.sun.star.frame.DispatchHelper')
     frame = doc.getCurrentController().getFrame()
@@ -923,35 +925,42 @@ class DocUpdater:
     log.debug("Result: %s", result)
     log.debug("DISPATCHER: %s %s", dir(dispatcher), type(dispatcher))
 
-  def fieldUpdateByPos(self,sheet,col,row,value):
+  def fieldUpdateByPos(self, sheet, col, row, value):
     try:
-      if isinstance(value,int) or isinstance(value,float):
-        sheet.getCellByPosition(col,row).setValue(str(value))
+      if isinstance(value, int) or isinstance(value, float):
+        sheet.getCellByPosition(col, row).setValue(str(value))
       else:
-        sheet.getCellByPosition(col,row).setString(str(value))
+        sheet.getCellByPosition(col, row).setString(str(value))
     except UnoException, e: #Probably means the cell name doesn't exist
       pass
-  def fieldUpdate(self,sheet,fieldname,value):
+  def fieldUpdate(self, sheet, fieldname, value):
+    log.debug("Field update called(%s,%s,%s)", 'sheet', fieldname, value)
     try:
-      if isinstance(value,int) or isinstance(value,float):
+      if isinstance(value, int) or isinstance(value, float):
         sheet.getCellRangeByName(fieldname).setValue(str(value))
         log.debug("Field update %s - %s", fieldname, value)
       else:
-        sheet.getCellRangeByName(fieldname).setString(str(value))
+        cell = sheet.getCellRangeByName(fieldname)
+        log.debug("Cell %s", cell)
+        log.debug("Get by string: cell: %s", cell.getString())
+        cell.String = "zzzzzzzzzzzzzzzzzz"
+        r = sheet.getCellRangeByName(fieldname).setString(str(value))
+        r = sheet.getCellRangeByName(fieldname).setFormula("Boom goes the dynamite")
+        log.debug("setString result: %s", r)
     except UnoException, e: #Probably means the cell name doesn't exist
       log.info("Could not find field %s value: %s Error %s", fieldname, value, e)
       pass
 
 def error(str):
   "Output error message"
-  print >>sys.stderr, str
+  print >> sys.stderr, str
 
 def info(level, str):
   "Output info message"
   if not op.stdout and level <= op.verbose:
-    print >>sys.stdout, str
+    print >> sys.stdout, str
   elif level <= op.verbose:
-    print >>sys.stderr, str
+    print >> sys.stderr, str
 
 def die(ret, str=None):
   "Print error and exit with errorcode"
@@ -1009,8 +1018,8 @@ def main():
     else:
       convertor = Convertor()
       #TSF code to add in fields.
-      docupdate=DocUpdater(op.yaml,convertor)
-      convertor.docUpdateCallback=docupdate.update
+      docupdate = DocUpdater(op.yaml, convertor)
+      convertor.docUpdateCallback = docupdate.update
       #----------------
 
     for inputfn in op.filenames:
@@ -1032,7 +1041,8 @@ def main():
 def run(inputh, output):
   """Used when calling as a library from another module."""
   global op
-  op = Options([ "-o", output, '-y', inputh , '--pipe=aaa' ] )
+  #op = Options([ "-o", output, '-y', inputh , '--pipe=aaa' ])
+  op = Options([ "-o", output, '-y', inputh , '--port=8100'])
   try:
     main()
     log.debug("Finished")
