@@ -64,7 +64,7 @@ def main():
 
   outfile = None
   if options.version:
-    if __version__ == "__VERSION__":
+    if __version__ == "__" + "VERSION__":  #Making this one string confuses the version replacement routine when building the dist package.
       print "Raspdf PDF library. In repository. Version 0.0.0"
     else:
       print __version__
