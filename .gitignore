@@ -7,3 +7,6 @@ pyinst
 PYTHONINSTALL
 ENV
 raspdf
+.project
+.pydevproject
+*.log
