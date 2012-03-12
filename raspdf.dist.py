@@ -14,15 +14,23 @@ import os, os.path
 
 #Setup system so we can find the libraries easily.
 rd = __file__
-while os.path.islink(rd): rd = os.path.dirname(os.path.abspath(os.readlink(rd)))
-rd = os.path.abspath(rd)
+while os.path.islink(rd): rd = os.path.abspath(os.readlink(rd))
+rd = os.path.abspath(os.path.dirname(rd))
 #Try calculate or guess a library path to use.
 for d in [ os.path.join(rd, 'lib'), '/rascal/raspdf/lib', '/usr/local/raspdf/lib', '/usr/lib/raspdf' ]:
   if os.path.exists(d) and not d in sys.path:  
     sys.path.append(d)
     break #Use the first path that matches.
 
-import RasPDF
+try:
+  import RasPDF
+except ImportError:
+  print "Failed to load the main library."
+  print "Application root: %s" % (rd)
+  print "Looked in the following locations:"
+  for d in sys.path: print "   %s" % (d)
+  sys.exit(7)
+  
 try:
   RasPDF.main()
 except KeyboardInterrupt:

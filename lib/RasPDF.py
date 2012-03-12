@@ -7,7 +7,7 @@ Replacement for the old xxpdf program.
 """
 __author__ = "Ed Pascoe <ed@pascoe.co.za>"
 __format__ = "plaintext"
-__version__ = "$Id$"
+__version__ = "__VERSION__"
 __copyright__ = "Ed Pascoe 2011. All rights reserved."
 __license__ = "GNU LGPL version 2"
 __status__ = "Production"
@@ -33,6 +33,7 @@ def main():
   parser.add_option("-l", "--landscape", dest="landscape", action="store_true", default=False, help="Use landscape A4" )
   parser.add_option("--evince", dest="evince", action="store_true", help="After generating the pdf file display using evince")
   parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="Show debugging information")
+  parser.add_option("-V", "--version", dest="version", action="store_true", help="Show running version")
   parser.add_option("--debug", dest="debug", action="store_true", help="Show debugging information")
   parser.add_option("-f", "--outputfile", dest="outputfile", type="string", help="Send output to file with given name instead of a temp file.")
   parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
@@ -62,6 +63,13 @@ def main():
   import RascalPDF, RasConfig 
 
   outfile = None
+  if options.version:
+    if __version__ == "__VERSION__":
+      print "Raspdf PDF library. In repository. Version 0.0.0"
+    else:
+      print __version__
+    sys.exit(0)
+    
   if options.outputfile:
     outfile = options.outputfile
     outhandle = file(outfile,"w")
