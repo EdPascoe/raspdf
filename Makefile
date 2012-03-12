@@ -3,16 +3,10 @@ ifndef VERSION
                 VERSION := $(shell git describe | sed -e 's/^v//')
 endif
 
-showhelp:
-	@echo "Usage: make VERSION=d.d.ddd dist"
-	@echo "Eg - make VERSION=3.4.1017 dist"
-	@echo "Or just:"
-	@echo "     make dist"
-	@echo "To build with a git describe tag"
-	@exit 1
 
 
 dist:
+	#!!!!WARNING!!!  this uses rsync to build from any files in the current directory. Make sure you have commited or reverted all changes here.
 	rm -rf buildroot 2> /dev/null || true
 	mkdir -p buildroot/raspdf
 	git ls-files | egrep -v -e '^\.gitignore' > buildroot/filelist
@@ -21,3 +15,10 @@ dist:
 	cd buildroot/raspdf
 	cd buildroot && tar -czvf raspdf.$(VERSION).tar.gz raspdf
         
+help:
+	@echo "Usage: make VERSION=d.d.ddd dist"
+	@echo "Eg - make VERSION=3.4.1017 dist"
+	@echo "Or just:"
+	@echo "     make dist"
+	@echo "To build with a git describe tag"
+	@exit 0
