@@ -21,6 +21,19 @@ import socket
 from subprocess import *
 from cStringIO import StringIO
 
+def getVersion():
+  """Returns the current version if we are running out of a git repository"""
+  import re
+  root = os.path.join(os.path.dirname(__file__), "..")
+  try:
+    if os.path.exists(os.path.join(root,".git")):
+      branch =  list([ x for x in os.popen("git branch -a --no-color ","r").readlines() if x.find('*') > -1 ])[0].strip()[2:]
+      version = re.sub(r'v','', os.popen("git describe", "r").read().strip())
+      return "RasPDF PDF Library. Version: gitsrc-%s %s" % (branch, version)
+  except:
+    pass
+  return "RasPDF PDF library. Exported Source No version number."
+
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
   import RasConfig
@@ -65,7 +78,7 @@ def main():
   outfile = None
   if options.version:
     if __version__ == "__" + "VERSION__":  #Making this one string confuses the version replacement routine when building the dist package.
-      print "Raspdf PDF library. In repository. Version 0.0.0"
+      print getVersion()
     else:
       print __version__
     sys.exit(0)
