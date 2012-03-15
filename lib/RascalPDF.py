@@ -535,24 +535,13 @@ class PrintJob:
     return "TODO"
 
   def feed(self, fhandle=None):
-    """Feed data to the pdf job"""
+    """Feed data to the pdf job. Retuns the result code of the parsing action.(Currently always true) """
     if not self.pdffile:
       self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf') #Temporary file with the work auto in it to force auto starting in terraterm.
     result = self._1stParse(fhandle)
     if result == _ISYAMLTEMPLATE:
-      import YamlOffice  #Import as late as possible so we don't crash if openoffice is not installed.
-      #The old perl system used this: system("/usr/local/rascalprinting_test/yamloffice -o $t $vvv < $tf");
-      if hasattr(self.pdffile, 'name'):
-        return YamlOffice.run(inputh=fhandle, output=self.pdffile.name)
-      else: #Must be a stringIO buffer. Create a temp file then read it back into the buffer.
-        t = tempfile.NamedTemporaryFile(suffix='.pdf')
-        ret = YamlOffice.run(inputh=fhandle, output=t.name)
-        t.seek(0)
-        self.pdffile.truncate()
-        self.pdffile.write(t.read())
-        t.close()
-        self.pdffile.seek(0)
-        return ret
+      import YamlTemplate  #Import as late as possible to reduce dependency issues if rest of system is not installed.
+      return YamlTemplate.run(inputh=fhandle, output=self.pdffile)
     else:
       self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 

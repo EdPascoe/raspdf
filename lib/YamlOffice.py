@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# © Ed Pascoe 2011. All rights reserved.
+# © Ed Pascoe 2012. All rights reserved.
 """
 Module for handling yamloffice documents. Replaces the yamloffice binary in the
 old perl xxpdf printing system.
@@ -38,7 +38,7 @@ __status__ = "Production"
 import getopt, sys, os, glob, time, socket, subprocess
 
 #TSF Imports
-import yaml, types, logging
+import types, logging
 log = logging.getLogger("YamlOfice")
 
 global convertor, oobin, oobinpath, oolibpath, ooproc
@@ -499,12 +499,16 @@ class Options:
     if y == "-":
       self.yaml = yaml.load(sys.stdin)
     else:
-      if isinstance(self.yaml, file) or isinstance(self.yaml, object):
-        self.yaml = yaml.load(self.yaml)
+      if isinstance(self,yaml, dict):
+        pass #Already converted.
       else:
-        f = file(self.yaml, "r")
-        self.yaml = yaml.load(f)
-        f.close()
+        import yaml
+        if isinstance(self.yaml, file) or isinstance(self.yaml, object):
+          self.yaml = yaml.load(self.yaml)
+        else:
+          f = file(self.yaml, "r")
+          self.yaml = yaml.load(f)
+          f.close()
     self.yaml = self.fixRascalYaml(self.yaml)
     if not self.filenames:
       if self.yaml.has_key('template'):
@@ -1038,11 +1042,11 @@ def main():
   except OSError:
     error("Warning: failed to launch OpenOffice. Aborting.")
 
-def run(inputh, output):
+def run(inputData, outputFileName):
   """Used when calling as a library from another module."""
   global op
-  #op = Options([ "-o", output, '-y', inputh , '--pipe=aaa' ])
-  op = Options([ "-o", output, '-y', inputh , '--port=8100'])
+  #op = Options([ "-o", outputFileName, '-y', inputh , '--pipe=aaa' ])
+  op = Options([ "-o", outputFileName, '-y', inputData , '--port=8100'])
   try:
     main()
     log.debug("Finished")

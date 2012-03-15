@@ -1,0 +1,29 @@
+#YMLTEMPLATE
+template: '/home/elp/work/tsf/swiftheat_datasheet/ds2/datasheet.html'
+data: 
+   name: 'Bob'
+   quantity: 3
+   tagno: Abc12345
+   description: 'Testing Testing testing'
+   so_number: SO1234567
+   she_dwg_number: aaaa
+   drawing: thermocouple.png
+   specs:
+      - Thermocouple:
+         Calibration Type: K
+         Temperature Range:  0-1200 Dec C
+         Configuration: Simplex
+         Junction: Ungrounded
+         Material: 316SS
+         Diameter(OD): 6mm
+         Insertion length(U): 200mm
+         Head: Alt Stock
+         Internal Connection: Alt Stock
+         Conneciton to Head: Alt Stock
+         Potseal Description: Alt Stock
+         Connection: Alt Stock
+         Spring: Alt Stock
+      - Thermowell:
+         Material: Choiceset
+         Diameter: Choiceset
+         Length: Choiceset
