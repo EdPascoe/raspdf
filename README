@@ -1,1 +1,13 @@
-Start of readme file
+This is the python version of the Rascal XXPDF system.
+
+If only the standard feature set is used it is fully compatible with xxpdf. 
+
+If the additional functionality is used then Libre office and or a version of wkhtmltopdf is needed.
+
+Wkhtmltopdf can be obtained from http://code.google.com/p/wkhtmltopdf/downloads/list
+The mostly static version is a better choice than the ubuntu dist version because it allows multiple documents and page footers.
+http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-i386.tar.bz2
+or
+http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-amd64.tar.bz2
+No copy of wkhtmltopdf is included here because its 12Meg in size and easy to get from the above URLs.
+
