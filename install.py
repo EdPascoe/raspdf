@@ -50,16 +50,22 @@ pip = os.path.join(destenv, "bin/pip")
 cmd = "%s install -v --no-index -r install/requirements.txt --environment=%s" % (pip, destenv)
 log.debug("executing %s", cmd)
 os.system(cmd)
-#TODO: need command line arguments to choose whats needed during the install
-os.unlink("raspdf")
-if not os.path.exists("raspdf"):
-  f = file("raspdf", "w")
-  f.write("#!%s\n" % (os.path.join(destenv, "bin/python")))
-  firstline = True
-  for line in file("raspdf.dist.py"):
-    if firstline: #Skip the first line because we've already created it.
-      firstline = False
-      continue
-    f.write(line)
-  f.close()
-  os.chmod("raspdf", 0775)
+#TODO: need command line arguments to choose what is needed during the install
+if os.path.exists("raspdf"):
+  try: 
+    os.unlink("raspdf")
+  except Exception, e:
+    print "Failed to remove the old raspdf file. %s" % (e)
+    print "Aborting!!!"
+    sys.exit(1)
+
+f = file("raspdf", "w")
+f.write("#!%s\n" % (os.path.join(destenv, "bin/python")))
+firstline = True
+for line in file("raspdf.dist.py"):
+  if firstline: #Skip the first line because we've already created it.
+    firstline = False
+    continue
+  f.write(line)
+f.close()
+os.chmod("raspdf", 0775)
