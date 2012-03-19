@@ -1,5 +1,2 @@
 install/Imaging-1.1.7.tar.gz
 install/reportlab-2.5.tar.gz
-install/pyScss-1.1.3.tar.gz
-install/Jinja2-2.6.tar.gz
-install/PyYAML-3.10.tar.gz
