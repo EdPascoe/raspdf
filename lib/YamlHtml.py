@@ -25,6 +25,9 @@ templatedirectories = []
 loader = jinja2.ChoiceLoader
 environment = jinja2.environment
 
+class YamlHtmlError(Exception):
+  """Thrown when we can't continue anymore"""
+
 
 
 def updateTemplateLocations(relativeto=None, locations=["../etc/templates", "../etc", "..", "."], deleteOld=False):
@@ -73,7 +76,11 @@ def run(inputData, outputFileName):
   updateTemplateLocations(os.path.dirname(__file__),['.','..','/etc','/rascal/templates'])
   env = getJinjaEnvironment(templated)
   
-  template = env.get_template(templatef)
+  try:
+    template = env.get_template(templatef)
+  except jinja2.exceptions.TemplateNotFound:
+    raise YamlHtmlError("The template %s cannot be found" % (template))
+   
   
   tempInput = tempfile.NamedTemporaryFile(suffix='.html')
   tempInput.write(template.render(**inputData['data'])) #Render the template to pure html.
