@@ -58,6 +58,7 @@ def main():
   parser.add_option("--bcc", dest="bcc", action="append", help="Addresses for the bcc list. Same usage as --to")
   parser.add_option("--from", dest="mailfrom", type="string", help="Address to send the mail from. Read receipts will be sent back here if requested.")
   parser.add_option("--subject", dest="subject", default="", help="Message subject")
+  parser.add_option("--message", dest="message", default="", help="Message body")
   parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", default=readreceipt , help="Request a read receipt on any outgoing email [%default]")
 
   (options, args) = parser.parse_args()
@@ -143,7 +144,11 @@ def main():
     import RasEmail
     outhandle.flush()
     outhandle.seek(0)
-    msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=None, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
+    if options.message: 
+      bodyhtml = "<pre>" + options.message + "</pre>"
+    else:
+      bodyhtml = None
+    msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=bodyhtml, bodytext=options.message, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
     RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
     RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
 

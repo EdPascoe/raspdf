@@ -160,7 +160,7 @@ class RascalPDF:
 
   def _regfnFontSetSizex(self, size):
     """For registerkeys, set font size"""
-    self.font.set(size=int(size))
+    self.font.set(size=int(float(size)))
 
   def _regfnFontSetName(self, name):
     """For registerkeys, set font name"""

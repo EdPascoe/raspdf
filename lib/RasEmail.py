@@ -71,13 +71,14 @@ def createEmail(tolist, subject, mailfrom=None, bodyhtml=None, bodytext=None, re
 
 
   #Load the email message from the given text file. If 
+  messagefile =  None
   
   if bodyhtml is None:
     messagefile = RasConfig.get_default('global','emailmessage', None)
-  if messagefile is None:
+  if bodyhtml is None and messagefile is None:
     bodyhtml = bodytext  = RasConfig.get_default('global', 'message', 'Your report should be attached.')
-  else:
-    bodyhtml = file(messagefile).read()
+  elif messagefile is not None: 
+      bodyhtml = file(messagefile).read()
   if bodytext is None: bodytext = h2text(bodyhtml) #Convert the html message to text
 
   msg = MIMEMultipart('mixed')
