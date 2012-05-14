@@ -292,6 +292,7 @@ class RascalPDF:
     """Initialize printing system"""
     log.debug("Inititializing")
     self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
+    self.font.set(size=10) #Default font size to match xxpdf
 
   def printend(self):
     """End printing system"""
