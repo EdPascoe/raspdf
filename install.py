@@ -15,13 +15,14 @@ env_location = "ENV" #Python environment. If does not start with / will be relat
 
 import os, os.path, sys
 import logging
+import distutils.sysconfig
 
 log = logging.getLogger("root")
 formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")
 output = logging.StreamHandler()
 output.setFormatter(formatter)
 log.addHandler(output)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 log = logging.getLogger("root")
 
@@ -37,13 +38,15 @@ else:
 #Make sure the virtual environment is running.
 log.debug("Testing for existance of '%s'", destenv)
 if not os.path.exists(destenv):
-  import virtualenv
-  oldargv = sys.argv  #Save command line options 
-  # '--never-download has been removed.
-  sys.argv = [sys.argv[0], '--distribute', '--never-download', destenv] #We are going to let virtualenv think it is running on its own.
   log.debug("Calling virtualenv.main (%s)", sys.argv)
-  virtualenv.main()
-  sys.argv = oldargv #Restore command line options.
+  os.system("install/virtualenv.py --distribute --never-download '%s'" % (destenv))
+
+if not os.path.exists(os.path.join(distutils.sysconfig.get_python_inc(),"/Python.h")):
+  print "You are missing the python development package. Please reinstall and re-run."
+  print "Under Redhat or Centos the package is called python-devel. Try: yum install python-devel"
+  print "Under Ubunutu or Debian the package is called: python-dev. Try: apt-get install python-dev"
+  print "Aborting until the file %s exists" % (os.path.join(distutils.sysconfig.get_python_inc(),"/Python.h"))
+  sys.exit(1)
 
 pip = os.path.join(destenv, "bin/pip")
 
