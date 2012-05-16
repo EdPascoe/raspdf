@@ -118,7 +118,8 @@ class FontTracker:
       raise
 
     log.debug("Font: %s", font)
-    pdfmetrics.registerFont(font) fonts[fontname] = [ fontname, fontname, fontname, fontname ]  #Use the same font no matter what styles are specified
+    pdfmetrics.registerFont(font)
+    fonts[fontname] = [ fontname, fontname, fontname, fontname ]  #Use the same font no matter what styles are specified
 
   def getFontName(self):
     """Name of font to use."""
