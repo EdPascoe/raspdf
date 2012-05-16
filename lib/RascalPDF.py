@@ -56,7 +56,7 @@ class RascalPDF:
   #Margins
   lmargin = 0.7 * cm
   tmargin = 0.75 * cm
-  bmargin = 1 * cm
+  bmargin = 0.5 * cm
   lmarginDefault = None
   line = "NOT YET INITITALIZED"
   linenumber = -1
@@ -160,7 +160,7 @@ class RascalPDF:
 
   def _regfnFontSetSizex(self, size):
     """For registerkeys, set font size"""
-    self.font.set(size=int(size))
+    self.font.set(size=size)
 
   def _regfnFontSetName(self, name):
     """For registerkeys, set font name"""
@@ -303,7 +303,7 @@ class RascalPDF:
     """Called at line end."""
     #log.debug("textlineend")
     if self.pos.y <= self.font.size + self.bmargin:
-      log.debug("Curent pos %s <= %s, new page", self.pos.y, self.font.size)
+      log.debug("Curent pos %s <= %s (fontsize) + %s (bmargin), new page", self.pos.y, self.font.size ,self.bmargin)
       self.newPage()
     else:
       self.pos.y -= self.font.size;
