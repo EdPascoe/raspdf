@@ -257,9 +257,10 @@ class RascalPDF:
     self.pos.x = self.lmargin;
 
   def right(self, c):
-    c = int(c)  #Zero based to match xxpdf
+    c = self.__toInt(c)  #Zero based to match xxpdf
     if c < 0: c = 0
     self.pos.x = int(self.lmargin + self.calcWidth("_" * c))
+
 
   def setLeftMargin(self, margin=None):
     """Set the left margin (indent level) in cm for future text. Default is to reset to starting margin."""
@@ -282,8 +283,8 @@ class RascalPDF:
       sys.exit(5)
 
   def moverelative(self, x, y):
-    self.pos.x += int(x);
-    self.pos.y -= int(y);
+    self.pos.x += self.__toInt(x);
+    self.pos.y -= self.__toInt(y);
 
   def moveabsolute(self, x=None, y=None):
     """Move to given spot on page. x and y in cm"""
@@ -451,16 +452,22 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
   def picture(self, fname, imgwidth=None, imgheight=None):
     """Insert picture into pdf. If imgwidth and imgheight are not none they will be used to reposition the cursor after the insert."""
     self.showPageIfNeeded()
-    x = int(self.pos.x)
-    y = int(self.pos.y)
+    x = self.__toInt(self.pos.x)
+    y = self.__toInt(self.pos.y)
     if imgwidth:
-      imgwidth = int(imgwidth)
+      imgwidth = self.__toInt(imgwidth)
     if imgheight:
-      imgheight = int(imgheight)
+      imgheight = self.__toInt(imgheight)
       y = y - imgheight
 
     fname = fileLocate(fname)
     self.canvas.drawImage(fname, x, y, imgwidth, imgheight)
+
+  def __toInt(self, value):
+    """make sure value is either None or an integer"""
+    if isinstance(value, int): return value
+    if value is None: return value
+    return int(float(value))
 
 class _Parser:
   """Contains the print job broken into an array of python function calls.

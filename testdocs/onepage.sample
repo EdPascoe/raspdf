@@ -30,13 +30,13 @@ right margins have to checked by hand.
  3
  2
  1
- 0{$RIGHT(30)}(1)RIGHT30
+ 0{$RIGHT(30.1)}(1)RIGHT30
  {$DOWN(3)}(2)DOWN 3 {$UP(3)}         (3)Up 3
 
  0{$RIGHT(10)}RIGHT10
   Font Tests
  {$FONTNAME("gothic.ttf")}{$SETCOLOR(0,0,0.42)}
- {$SF(20)}This is the gothic font {$SF(12)}
+ {$SF(20.1)}This is the gothic font {$SF(12)}
  {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
  {$FONTNAME("arialn.ttf")}{$SETCOLOR(0,0,0.42)}
  {$SF(11)}This is the arial narrow font 11 point{$SF(12)}
