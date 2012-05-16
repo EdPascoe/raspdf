@@ -487,11 +487,11 @@ class _Parser:
       leadtext = r.group(1)
       cmd = r.group(2)
       restofline = r.group(3)
-      self.cmdlist.append(("printstring", u'line="' + leadtext.replace(r'"', r'\\"') + '"'))
+      self.cmdlist.append(("printstring", u'line="' + leadtext + '"'))
       self.addCommand(cmd)
       self.parseLine(restofline)
     else:
-      self.cmdlist.append(("printstring", u'line="' + line.replace(r'"', r'\\"') + '"'))
+      self.cmdlist.append(("printstring", u'line="' + line + '"'))
 
     if hasnewline:
       self.cmdlist.append(("newline",))

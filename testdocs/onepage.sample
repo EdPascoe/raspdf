@@ -12,7 +12,7 @@
 {$RBOXS}{$LMARGIN(15.1)}
 Left margin set to 15.1
 Some text
-Some more text
+Some "more" text
                         {$RBOXE}
 {$LMARGIN}
 {$POPPOS}
