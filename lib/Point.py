@@ -65,7 +65,7 @@ class FontTracker:
   """Handle fonts, sizes italic etc."""
   italic = False
   bold = False
-  size = 12
+  size = 10
   fontname = "courier"
   fileLocator = None
 

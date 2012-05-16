@@ -57,3 +57,8 @@ right margins have to checked by hand.
 {$MA(x=20)}*
 {$MA(y=10.5)}*10.5 cm from top.
 {$POPPOS}
+{$NEWPAGE}
+{$NEWPAGE}
+{$NEWPAGE}
+{$NEWPAGE}
+{$NEWPAGE}

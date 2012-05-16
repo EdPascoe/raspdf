@@ -1,6 +1,15 @@
 raspdf
 *.pyc
 *.swp
+*.old
+*.bak
 t
+compass
 pyinst
 PYTHONINSTALL
+ENV
+raspdf
+.project
+.pydevproject
+*.log
+nohup.out

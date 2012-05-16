@@ -12,7 +12,7 @@ __copyright__ = "Ed Pascoe 2011. All rights reserved."
 __license__ = "GNU LGPL version 2"
 __status__ = "Production"
 
-from ConfigParser import ParsingError, SafeConfigParser as ConfigParser
+from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError
 import os, os.path, sys
 import logging
 
@@ -84,9 +84,25 @@ def get_default(section, option, default=None):
   else:
     return default
 
+def items(section, raw=False, vars=None):
+  """Return all entries in given section"""
+  try:
+    return xmmail.items(section, raw, vars)
+  except NoSectionError:
+    return []
+
+def getBool(section, option, default=False):
+  """Returns a boolean from the config."""
+  v = get_default(section,option, None) 
+  if v is None:
+    return default
+  if isinstance(v, basestring): v= v.lower()
+  if v == "false" or v == "0" or v == False or v == "no" or v == "off" or v == "disabled":
+    return False
+  else:
+    return True
 
 _initSearchLocations() #Build the search paths for finding files later.
-
 
 xmmail = ConfigParser()
 try:
@@ -103,7 +119,12 @@ subject = Generic rascal report
 mime = application/octet-stream
 filename = report.pdf
 message = Your report should be attached.
+;Ask for read receipts when sending mail.
+readreceipt = True
+;use the same broken page size code as xxpdf.
+xxpdf = True
 """
+  sys.exit(1)
 
 #
 #config = ConfigParser.ConfigParser()

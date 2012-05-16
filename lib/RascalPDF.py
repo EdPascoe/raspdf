@@ -32,11 +32,11 @@ from reportlab.platypus.flowables import Image
 from reportlab.lib.units import inch
 from Point import Point, FontTracker
 import logging
-cm = inch/2.54
+cm = inch / 2.54
 
-log = logging.getLogger("root")
+log = logging.getLogger()
 
-import re, os, os.path, sys, tempfile 
+import re, os, os.path, sys, tempfile
 from copy import copy, deepcopy
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from RasConfig import fileLocate
@@ -45,24 +45,25 @@ cnstNORMAL = 0
 cnstBOLD = 1
 cnstITALIC = 2
 
+_ISYAMLTEMPLATE = 99 #Internal use only.
+
 class RascalPDFException(Exception):
   """Errors thrown by the PDF system"""
 
 class RascalPDF:
   """PDF library for use with rascal. Tries to be a compatible with the old perl xxpdf library"""
   canvas = None
-  font_size = 10 #Default font size
   #Margins
-  lmargin = 0.6*cm
-  tmargin = 0.8*cm
-  bmargin = 1*cm
+  lmargin = 0.7 * cm
+  tmargin = 0.75 * cm
+  bmargin = 1 * cm
   lmarginDefault = None
-  line="NOT YET INITITALIZED"
-  linenumber  = -1
+  line = "NOT YET INITITALIZED"
+  linenumber = -1
 
-  reporttitle="Rascal Report";
+  reporttitle = "Rascal Report";
 
-  def  __init__(self, pdffile, pagesize=reportlab.lib.pagesizes.A4, isLandscape=False ):
+  def  __init__(self, pdffile, pagesize=reportlab.lib.pagesizes.A4, isLandscape=False):
     self.pdffile = pdffile
     if isLandscape:
       pagesize = reportlab.lib.pagesizes.landscape(pagesize)
@@ -75,14 +76,15 @@ class RascalPDF:
     self.info = self.canvas._doc.info #The PDF document info
     self.pagesize = pagesize
 
-    self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
-    self.font=FontTracker(fileLocator=fileLocate)
+    self.pos = Point(x=self.lmargin, y=self.pagesize[1] - self.tmargin)
+    self.font = FontTracker(fileLocator=fileLocate)
 
-    self.boxlist  = {} # for drawing boxes
+    self.boxlist = {} # for drawing boxes
     self.linelist = {} # for drawing lines
 
     self.start_newpage = 1;
-    self.printingbegun = False;
+    self.printingBegun = False
+    self.showPageNeeded = False #Next output command should do a show page
 
     self.picturelist_key = {}
     self.picturelist_h = {}
@@ -92,16 +94,16 @@ class RascalPDF:
 
     # Prepare  fonts
     self.courier = self.helvetica = {}
-    self.courier[cnstNORMAL]               = 'Courier';
-    self.courier[cnstBOLD]                 = 'Courier-Bold';
-    self.courier[cnstITALIC]               = 'Courier-Oblique';
-    self.courier[cnstBOLD + cnstITALIC]   = 'Courier-BoldOblique';
-    self.helvetica[cnstNORMAL]             = 'Helvetica';
-    self.helvetica[cnstBOLD]               = 'Helvetica-Bold';
-    self.helvetica[cnstITALIC]             = 'Helvetica-Oblique';
+    self.courier[cnstNORMAL] = 'Courier';
+    self.courier[cnstBOLD] = 'Courier-Bold';
+    self.courier[cnstITALIC] = 'Courier-Oblique';
+    self.courier[cnstBOLD + cnstITALIC] = 'Courier-BoldOblique';
+    self.helvetica[cnstNORMAL] = 'Helvetica';
+    self.helvetica[cnstBOLD] = 'Helvetica-Bold';
+    self.helvetica[cnstITALIC] = 'Helvetica-Oblique';
     self.helvetica[cnstBOLD + cnstITALIC] = 'Helvetica-BoldOblique';
     self.__registerkeys()
-    self.linenumber  = -1
+    self.linenumber = -1
 
   def fnexec(self, fnname, *params, **kwargs):
     """Lookup fnname in the functions list and execute the given function call."""
@@ -114,7 +116,7 @@ class RascalPDF:
     try:
       return fn(*params, **kwargs)
     except:
-      log.error("Failure executing %s(%s) Command stack line number: %s Params: %s KWargs: %s" ,fnname, params, self.linenumber, params, kwargs)
+      log.error("Failure executing %s(%s) Command stack line number: %s Params: %s KWargs: %s" , fnname, params, self.linenumber, params, kwargs)
       raise
 
   def save(self):
@@ -162,10 +164,10 @@ class RascalPDF:
 
   def _regfnFontSetName(self, name):
     """For registerkeys, set font name"""
-    name= self.stripQuotes(name)
+    name = self.stripQuotes(name)
 
-    self.font.set(fontname=name)     
-  
+    self.font.set(fontname=name)
+
   def stripQuotes(self, msg):
     """Removes and quotes surrounding given string"""
     if msg[0] == '"' and msg[-1] == '"': #Filename has quotes around it which need to be removed.
@@ -174,7 +176,7 @@ class RascalPDF:
 
   def _regfnFontSetColor(self, r, g, b):
     """For registerkeys, set font color"""
-    self.canvas.setFillColorRGB(float(r),float(g),float(b))
+    self.canvas.setFillColorRGB(float(r), float(g), float(b))
 
   def _regfnCopiesSet(self, numcopies):
     """For registerkeys, set number of copies"""
@@ -183,49 +185,49 @@ class RascalPDF:
   def __registerkeys(self):
     """Create all the function mappings for lookups later."""
     self.functions = {}
-    self.functions["PRINTINIT"]= self.printinit
-    self.functions["PRINTEND"]= self.printend
-    self.functions["LEND"]=     self.textlineend #Called at auto at end of line
+    self.functions["PRINTINIT"] = self.printinit
+    self.functions["PRINTEND"] = self.printend
+    self.functions["LEND"] = self.textlineend #Called at auto at end of line
 
-    self.functions["LMARGIN"]=   self.setLeftMargin 
-    self.functions["PUSHPOS"]=   self.savePos
-    self.functions["POPPOS"]=   self.restorePos
+    self.functions["LMARGIN"] = self.setLeftMargin
+    self.functions["PUSHPOS"] = self.savePos
+    self.functions["POPPOS"] = self.restorePos
 
-    self.functions["BOLDON"]=  self._regfnFontSetBoldTrue
+    self.functions["BOLDON"] = self._regfnFontSetBoldTrue
 # sub{ $fontSTYLE = $fontSTYLE | $cnstBOLD; });
-    self.functions["B1"]=  self._regfnFontSetBoldTrue
-    self.functions["BOLDOFF"]=  self._regfnFontSetBoldFalse
-    self.functions["B0"]= self._regfnFontSetBoldFalse
-    self.functions["ITALICON"]= self._regfnFontSetItalicTrue
-    self.functions["I1"]= self._regfnFontSetItalicTrue
-    self.functions["ITALICOFF"]=self._regfnFontSetItalicFalse
-    self.functions["I0"]=self._regfnFontSetItalicFalse
+    self.functions["B1"] = self._regfnFontSetBoldTrue
+    self.functions["BOLDOFF"] = self._regfnFontSetBoldFalse
+    self.functions["B0"] = self._regfnFontSetBoldFalse
+    self.functions["ITALICON"] = self._regfnFontSetItalicTrue
+    self.functions["I1"] = self._regfnFontSetItalicTrue
+    self.functions["ITALICOFF"] = self._regfnFontSetItalicFalse
+    self.functions["I0"] = self._regfnFontSetItalicFalse
 
     self.functions["SETFONT16"] = self._regfnFontSetSize16
     self.functions["SETFONT12"] = self._regfnFontSetSize12
     self.functions["SETFONT10"] = self._regfnFontSetSize10
-    self.functions["SETFONT8"]= self._regfnFontSetSize8
-    self.functions["SETFONT6"]= self._regfnFontSetSize6
-    self.functions["SETFONT"]= self._regfnFontSetSizex
-    self.functions["SF"]=  self._regfnFontSetSizex
+    self.functions["SETFONT8"] = self._regfnFontSetSize8
+    self.functions["SETFONT6"] = self._regfnFontSetSize6
+    self.functions["SETFONT"] = self._regfnFontSetSizex
+    self.functions["SF"] = self._regfnFontSetSizex
 
-    self.functions["FONTNAME"]= self._regfnFontSetName
-    self.functions["SETCOLOR"]= self._regfnFontSetColor
+    self.functions["FONTNAME"] = self._regfnFontSetName
+    self.functions["SETCOLOR"] = self._regfnFontSetColor
 
-    self.functions["COPIES"]= self._regfnCopiesSet
+    self.functions["COPIES"] = self._regfnCopiesSet
 
-    self.functions["BOXS"]= self.boxstart #Mark the top left corner of a box
-    self.functions["BOXE"]= self.boxend
-    self.functions["RBOXS"]= self.boxstart #Mark the top left corner of a box
-    self.functions["RBOXE"]= self.boxendround
+    self.functions["BOXS"] = self.boxstart #Mark the top left corner of a box
+    self.functions["BOXE"] = self.boxend
+    self.functions["RBOXS"] = self.boxstart #Mark the top left corner of a box
+    self.functions["RBOXE"] = self.boxendround
 
-    self.functions["LINES"]= self.linestart
-    self.functions["L1"]=    self.linestart
-    self.functions["LINEE"]= self.lineend
-    self.functions["L0"]=    self.lineend
+    self.functions["LINES"] = self.linestart
+    self.functions["L1"] = self.linestart
+    self.functions["LINEE"] = self.lineend
+    self.functions["L0"] = self.lineend
 
-    self.functions["LINEWIDTH"]=self.linewidth
-    self.functions["LW"]=       self.linewidth
+    self.functions["LINEWIDTH"] = self.linewidth
+    self.functions["LW"] = self.linewidth
 
     self.functions["NEWPAGE"] = self.newPage
     self.functions["SHOWLINE"] = self.output
@@ -234,35 +236,35 @@ class RascalPDF:
 
     self.functions["UP"] = self.up
     self.functions["DOWN"] = self.down
-            
+
     self.functions["MA"] = self.moveabsolute
     self.functions["MR"] = self.moverelative
     self.functions["RIGHT"] = self.right
 
     self.functions["printstring"] = self.output
-    self.functions["newline"]     = self.newline
+    self.functions["newline"] = self.newline
 
   def up(self, lines, fsize=None):
-    lines=int(lines)
+    lines = int(lines)
     if fsize is None: fsize = self.font.size
-    self.pos.y =  self.pos.y + (lines * fsize) 
-    self.pos.x =  self.lmargin; 
+    self.pos.y = self.pos.y + (lines * fsize)
+    self.pos.x = self.lmargin;
 
   def down(self, lines, fsize=None):
-    lines=int(lines)
+    lines = int(lines)
     if fsize is None: fsize = self.font.size
-    self.pos.y =  self.pos.y - (lines * int(fsize) )
-    self.pos.x =  self.lmargin; 
+    self.pos.y = self.pos.y - (lines * int(fsize))
+    self.pos.x = self.lmargin;
 
-  def right(self, c): 
-    c= int(c)  #Zero based to match xxpdf
+  def right(self, c):
+    c = int(c)  #Zero based to match xxpdf
     if c < 0: c = 0
-    self.pos.x =  int(self.lmargin + self.calcWidth("_"  * c ))
-    
+    self.pos.x = int(self.lmargin + self.calcWidth("_" * c))
+
   def setLeftMargin(self, margin=None):
     """Set the left margin (indent level) in cm for future text. Default is to reset to starting margin."""
     if self.lmarginDefault is None: self.lmarginDefault = self.lmargin
-    if margin is None: 
+    if margin is None:
       self.lmargin = self.lmarginDefault
     else:
       self.lmargin = float(margin) * cm
@@ -276,17 +278,17 @@ class RascalPDF:
     try:
       self.pos.pop()
     except IndexError:
-      print >> sys.stderr,  "Could not restore position because nothing has been saved"
+      print >> sys.stderr, "Could not restore position because nothing has been saved"
       sys.exit(5)
-    
+
   def moverelative(self, x, y):
     self.pos.x += int(x);
-    self.pos.y += int(y);
+    self.pos.y -= int(y);
 
   def moveabsolute(self, x=None, y=None):
     """Move to given spot on page. x and y in cm"""
     if x: self.pos.x = float(x) * cm;
-    if y: self.pos.y = self.pagesize[1] - float(y)* cm;
+    if y: self.pos.y = self.pagesize[1] - float(y) * cm;
 
   def printinit(self):
     """Initialize printing system"""
@@ -296,11 +298,11 @@ class RascalPDF:
 
   def printend(self):
     """End printing system"""
-  
+
   def textlineend(self):
     """Called at line end."""
     #log.debug("textlineend")
-    if self.pos.y <= self.font.size + self.bmargin: 
+    if self.pos.y <= self.font.size + self.bmargin:
       log.debug("Curent pos %s <= %s, new page", self.pos.y, self.font.size)
       self.newPage()
     else:
@@ -309,14 +311,15 @@ class RascalPDF:
 
   def newline(self):
     """handle \n"""
-    self.textlineend() 
+    self.textlineend()
 
-  def boxstart(self, boxname=0):  
+  def boxstart(self, boxname=0):
     """Remember the posistion of the start of a box."""
-    self.boxlist[boxname]= copy(self.pos)
+    self.boxlist[boxname] = copy(self.pos)
     log.debug("box start Position: %s", self.pos)
 
   def  boxend(self, boxname=0):
+    self.showPageIfNeeded()
     if not self.boxlist.has_key(boxname):
       return
     s = self.boxlist[boxname]
@@ -327,20 +330,22 @@ class RascalPDF:
 
   def boxendround(self, boxname=0):
     """Complete a box with rounded corners"""
+    self.showPageIfNeeded()
     if not self.boxlist.has_key(boxname): return
 
     s = self.boxlist[boxname]
     e = self.pos
     log.debug("boxendround end box from %s to %s", s, e)
-    u = inch/10.0 
-    self.canvas.roundRect(s.x, e.y, (e.x - s.x), (s.y - e.y), 1.5*u, stroke=1, fill=0)
+    u = inch / 10.0
+    self.canvas.roundRect(s.x, e.y, (e.x - s.x), (s.y - e.y), 1.5 * u, stroke=1, fill=0)
     return
-  
+
   def linestart(self, linename=0):  #Remember the posistion of the start of a line.
     self.linelist[linename] = deepcopy(self.pos)
 
   def lineend(self, linename=0):
-    s= self.linelist.get(linename, None)
+    self.showPageIfNeeded()
+    s = self.linelist.get(linename, None)
     if s is None: return
     x1 = s.x
     y1 = s.y
@@ -348,20 +353,20 @@ class RascalPDF:
     y2 = self.pos.y
 
     path = self.canvas.beginPath()
-    path.moveTo(x1,y1);
-    path.lineTo(x2,y2);
+    path.moveTo(x1, y1);
+    path.lineTo(x2, y2);
     self.canvas.drawPath(path, stroke=1, fill=1)
 
   def linewidth(self, width):
     self.canvas.setLineWidth(width)
 
   def output(self, line):
-    if len(line)==0: return
+    if len(line) == 0: return
 
     if line[-1] != "\n":
       self.print_string(line)
-      self.pos.x +=  self.calcWidth(line)
-      return 
+      self.pos.x += self.calcWidth(line)
+      return
 
     r = re.search(r'(.*?)\cL(.*)', line)
     if self.pos.y <= self.font.size:
@@ -370,7 +375,7 @@ class RascalPDF:
       self.print_string(line)
       self.pos.x = self.lmargin
       self.pos.y -= self.font.size
-    
+
     elif r: #Form Feed
       self.print_string(r.group(1));
       self.newPage();
@@ -381,29 +386,33 @@ class RascalPDF:
     else:
        self.print_string(line);
        self.pos.y -= self.font.size
-       self.pos.x  = self.lmargin
- 
+       self.pos.x = self.lmargin
+
   def startDoc(self):
-    self.newpage(); 
+    self.newpage();
     self.start_newpage = 0;
     self.pos.set(x=self.lmargin, y=0)
 
   def newPage(self):
     """Set the flag so that the next write to the screen will create a new page"""
     self.start_newpage = 1
-    self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
+    self.pos = Point(x=self.lmargin, y=self.pagesize[1] - self.tmargin)
     log.debug("newPage %s", self.pos)
-    self.canvas.showPage()
-
-  def real_newPage(self):
-    """This does the real newpage
-    """
-    self.start_newpage = 0;
-    if (self.printingbegun):
-     log.debug("real_newPage")
-     self.canvas.showPage()
+    if self.printingBegun:
+      self.showPageNeeded = True #Next output command should generate a showpage.
+      self.printingBegun = False;
     else:
-     self.printingbegun=True;
+      log.debug("newPage called but nothing has been printed on this page so far")
+
+  def showPageIfNeeded(self):
+    """ This is needed to prevent blank pages at end of doc. 
+        Typically a final newPage gets called but there is nothing waiting.
+    """
+    if self.showPageNeeded:
+      self.showPageNeeded = False
+      self.canvas.showPage()
+    else:
+      self.printingBegun = True
 
   def calcTextWidth(self, line):
     return self.calcWidth(line);
@@ -432,22 +441,25 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
 
   def print_string(self, msg):
     """Prints string on page at current cursor location."""
+    self.showPageIfNeeded()
+
     textobject = self.canvas.beginText()
-    self.canvas.setFont(self.font.getFontName(), self.font.size) 
+    self.canvas.setFont(self.font.getFontName(), self.font.size)
     log.debug(" self.canvas.drawText%s, %s)", self.pos, msg)
     self.canvas.drawString(self.pos.x, self.pos.y, msg)
 
   def picture(self, fname, imgwidth=None, imgheight=None):
     """Insert picture into pdf. If imgwidth and imgheight are not none they will be used to reposition the cursor after the insert."""
+    self.showPageIfNeeded()
     x = int(self.pos.x)
     y = int(self.pos.y)
     if imgwidth:
       imgwidth = int(imgwidth)
     if imgheight:
       imgheight = int(imgheight)
-      y = y -  imgheight 
+      y = y - imgheight
 
-    fname=fileLocate(fname)
+    fname = fileLocate(fname)
     self.canvas.drawImage(fname, x, y, imgwidth, imgheight)
 
 class _Parser:
@@ -460,19 +472,19 @@ class _Parser:
     self.cmdlist = []
 
   def parseLine(self, line):
-    if len(line)==0: return  #Blank line
-    hasnewline= line[-1] == "\n"
+    if len(line) == 0: return  #Blank line
+    hasnewline = line[-1] == "\n"
     line = line.rstrip()
-    r=re.search(r'^(.*?){\$(.*?)}(.*)$', line)
+    r = re.search(r'^(.*?){\$(.*?)}(.*)$', line)
     if r:
-      leadtext=r.group(1)
-      cmd=r.group(2)
+      leadtext = r.group(1)
+      cmd = r.group(2)
       restofline = r.group(3)
-      self.cmdlist.append(("printstring", u'line="' + leadtext.replace(r'"',r'\\"') +'"'))
+      self.cmdlist.append(("printstring", u'line="' + leadtext.replace(r'"', r'\\"') + '"'))
       self.addCommand(cmd)
       self.parseLine(restofline)
     else:
-      self.cmdlist.append(("printstring", u'line="' + line.replace(r'"',r'\\"') +'"'))
+      self.cmdlist.append(("printstring", u'line="' + line.replace(r'"', r'\\"') + '"'))
 
     if hasnewline:
       self.cmdlist.append(("newline",))
@@ -483,10 +495,10 @@ class _Parser:
     cmdparams = []
     p = command.find("(") #Find the start of any parameters
     if p == -1: #No parameters
-      return self.cmdlist.append( [command.strip(),])
+      return self.cmdlist.append([command.strip(), ])
     cmdname = command[:p]
-    params = command[p+1:]
-    params = re.sub(r'\s*\)\s*$','',params)
+    params = command[p + 1:]
+    params = re.sub(r'\s*\)\s*$', '', params)
     params = [ x.strip() for x in params.split(",") if len(x.strip()) > 0]
     if cmdname == "INCLUDE":
       includefile = list(params)[0]
@@ -495,15 +507,15 @@ class _Parser:
       for line in file(includefile):
         self.parseLine(line)
     else:
-      return self.cmdlist.append([ cmdname,] +  list(params) )
+      return self.cmdlist.append([ cmdname, ] + list(params))
 class PrintJob:
   """Controls the output and setup of a print job. """
   rascalpdf = None
   parser = None
   output = None
   landscape = False
-  
-  def __init__(self, output=None, pagesize = reportlab.lib.pagesizes.A4, landscape=False ):
+
+  def __init__(self, output=None, pagesize=reportlab.lib.pagesizes.A4, landscape=False):
     """ fhandle should be a file like object. 
     """
     self.pagesize = pagesize
@@ -511,7 +523,7 @@ class PrintJob:
 
     if output:
       if isinstance(output, basestring): #String means its a filename
-        self.pdffile = file(output,"w+")
+        self.pdffile = file(output, "w+")
       else:
         self.pdffile = output #Must be a file handle or some other object that has a write method.
     else:
@@ -522,32 +534,42 @@ class PrintJob:
        The environment and the shell
     """
     return "TODO"
-  
+
   def feed(self, fhandle=None):
-    """Feed data to the pdf job"""
+    """Feed data to the pdf job. Retuns the result code of the parsing action.(Currently always true) """
     if not self.pdffile:
-      self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
-    self._1stParse(fhandle)
-    self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
+      self.pdffile = tempfile.NamedTemporaryFile(suffix='_auto.pdf') #Temporary file with the work auto in it to force auto starting in terraterm.
+    result = self._1stParse(fhandle)
+    if result == _ISYAMLTEMPLATE:
+      import YamlTemplate  #Import as late as possible to reduce dependency issues if rest of system is not installed.
+      return YamlTemplate.run(inputh=fhandle, output=self.pdffile)
+    else:
+      self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 
-    self.rascalpdf.info.producer = "xxpdf2 by Ed.Pascoe <ed@pascoe.co.za>"
-    self.rascalpdf.info.tile="Rascal document"
-    self.rascalpdf.info.subject="Rascal document"
+      self.rascalpdf.info.producer = "Raspdf by Ed Pascoe <ed@pascoe.co.za>"
+      self.rascalpdf.info.tile = "Rascal document"
+      self.rascalpdf.info.subject = "Rascal document"
 
-    self._2ndParse()
-    self.rascalpdf.canvas.save()
-    self.pdffile.flush()
+      self._2ndParse()
+      self.rascalpdf.canvas.save()
+      self.pdffile.flush()
     return True
 
   def _1stParse(self, fhandle):
     """Converts the incoming document into a series of functions to be executed"""
+    self.parser = None
+    line = fhandle.readline()
+
+    if line.find("YMLTEMPLATE") > -1:
+      return _ISYAMLTEMPLATE
+
     self.parser = _Parser()
     self.parser.addCommand('PRINTINIT')
-    for line in fhandle:
+    while len(line) > 0 :
       # -------- Strip any control characters -----------
-      line = line.replace(chr(0x0f),'') # ^O
-      line = line.replace(chr(0x1b),'') # ^[ Escape
-      line = line.replace(chr(0x12),'') # ^R
+      line = line.replace(chr(0x0f), '') # ^O
+      line = line.replace(chr(0x1b), '') # ^[ Escape
+      line = line.replace(chr(0x12), '') # ^R
       try: line = line.decode("utf-8")
       except UnicodeDecodeError: #Drop any non-readable characters.
         line = line.decode("utf-8", "replace") #Convert to unicode. Leaving out any characters that would cause issues.
@@ -555,11 +577,13 @@ class PrintJob:
 
       # convert the line into function calls for 2nd parse later.
       self.parser.parseLine(line)
+      line = fhandle.readline() #Get the next line.
     self.parser.addCommand('PRINTEND')
     lineno = 0
-    for cmd in self.parser.cmdlist: 
+    for cmd in self.parser.cmdlist:
       log.debug("Cmd: %s Line: %s", cmd, lineno)
-      lineno +=1
+      lineno += 1
+    return True
 
   def _2ndParse(self):
     """Generate the actual print job."""
@@ -598,7 +622,7 @@ class PrintJob:
           args.append(p)
           continue
         else:
-          v = p[equalpos+1:].strip()
+          v = p[equalpos + 1:].strip()
           if v[0] == '"' and v[-1] == '"': #Chop off any quotations around the entire string.
             v = v[1:-1]
           elif v[0] == "'" and v[-1] == "'": #Chop off any quotations around the entire string.
@@ -607,7 +631,6 @@ class PrintJob:
           kw[k.strip()] = v
     return (args, kw)
 
-    
 if __name__ == "__main__":
   #Enable logging
   formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")
@@ -616,7 +639,7 @@ if __name__ == "__main__":
   log.addHandler(output)
   log.setLevel(logging.DEBUG)
 
-  c = PrintJob(output="/tmp/a.pdf" )
+  c = PrintJob(output="/tmp/a.pdf")
   c.feed(sys.stdin)
 
 
