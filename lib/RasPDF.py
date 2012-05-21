@@ -49,7 +49,7 @@ def main():
   parser.add_option("-V", "--version", dest="version", action="store_true", help="Show running version")
   parser.add_option("--debug", dest="debug", action="store_true", help="Show debugging information")
   parser.add_option("-f", "--outputfile", dest="outputfile", type="string", help="Send output to file with given name instead of a temp file.")
-  parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
+  parser.add_option("--tty", dest="tty", type="string", help="The running TTY to use for zmodem. Usually set as the TTY environment variable.")
   parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", default=xxpdf, help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69"  [%default] ')
   parser.add_option("-d", "--printer", dest="printer", type="string", help='Send the pdf to given cups printer')
   parser.add_option("--to", dest="to", action="append", help="Address to send the mail to. May be specified multiple times or addresses may be comma separated.")
