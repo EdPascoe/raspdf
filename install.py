@@ -40,12 +40,12 @@ log.debug("Testing for existance of '%s'", destenv)
 if not os.path.exists(destenv):
   log.debug("Calling virtualenv.main (%s)", sys.argv)
   os.system("install/virtualenv.py --distribute --never-download '%s'" % (destenv))
-
-if not os.path.exists(os.path.join(distutils.sysconfig.get_python_inc(),"/Python.h")):
+headerfile=os.path.join(distutils.sysconfig.get_python_inc(),"Python.h")
+if not os.path.exists(headerfile):
   print "You are missing the python development package. Please reinstall and re-run."
   print "Under Redhat or Centos the package is called python-devel. Try: yum install python-devel"
   print "Under Ubunutu or Debian the package is called: python-dev. Try: apt-get install python-dev"
-  print "Aborting until the file %s exists" % (os.path.join(distutils.sysconfig.get_python_inc(),"/Python.h"))
+  print "Aborting until the file %s exists" % (headerfile)
   sys.exit(1)
 
 pip = os.path.join(destenv, "bin/pip")
