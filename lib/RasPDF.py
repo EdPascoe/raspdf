@@ -139,10 +139,12 @@ def main():
     pipe.close()
 
   if options.to:
+    log.debug("RasEmail option set")
     import RasEmail
     outhandle.flush()
     outhandle.seek(0)
     msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=None, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
     RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
+    log.debug("Message build")
     RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
 

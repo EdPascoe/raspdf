@@ -106,9 +106,11 @@ _initSearchLocations() #Build the search paths for finding files later.
 
 xmmail = ConfigParser()
 try:
-  xmmail.readfp(file(fileLocate('xmmail.conf')))
+  configfile = fileLocate('xmmail.conf')
+  log.debug("Reading config %s", configfile)
+  xmmail.readfp(file(configfile))
 except ParsingError: #The original xmmail.conf file has perl extentions which we just ignore.
-  print >>sys.stderr, "The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (fileLocate('xmmail.conf'))
+  print >>sys.stderr, "The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (configfile)
   sys.exit(1)
 except RasConfigNoSuchFileError:
   print >> sys.stderr, "Could not locate an xmmail.conf file. Please create a file called /etc/xmmail.conf that looks something like:"
