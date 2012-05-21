@@ -28,7 +28,7 @@ def getVersion():
   try:
     if os.path.exists(os.path.join(root,".git")):
       branch =  list([ x for x in os.popen("git branch -a --no-color ","r").readlines() if x.find('*') > -1 ])[0].strip()[2:]
-      version = re.sub(r'v','', os.popen("git describe", "r").read().strip())
+      version = re.sub(r'v','', os.popen("git describe 2>/dev/null", "r").read().strip())
       return "RasPDF PDF Library. Version: gitsrc-%s %s" % (branch, version)
   except:
     pass
