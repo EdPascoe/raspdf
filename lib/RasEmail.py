@@ -147,7 +147,7 @@ def sendMail(tolist, msg, mailfrom = None, cclist=None, bcclist=None):
   smtpserver = RasConfig.get('global', 'smtpserver')
   log.debug("Connecting to smtp server %s", smtpserver)
   s = smtplib.SMTP(smtpserver)
-  s.set_debuglevel(1)
+  s.set_debuglevel(0)
   s.sendmail(mailfrom, destemail, msg.as_string())
   s.quit()
 
