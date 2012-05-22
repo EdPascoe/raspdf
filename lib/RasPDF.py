@@ -74,77 +74,83 @@ def main():
 
   #Do the imports AFTER logging has been set up.
   import RascalPDF, RasConfig 
-
-  outfile = None
-  if options.version:
-    if __version__ == "__" + "VERSION__":  #Making this one string confuses the version replacement routine when building the dist package.
-      print getVersion()
-    else:
-      print __version__
-    sys.exit(0)
-    
-  if options.outputfile:
-    outfile = options.outputfile
-    outhandle = file(outfile,"w")
-  elif options.zmodem:
-    tf = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
-    outfile = tf.name
-    log.debug("Temporary outfile: %s", outfile)
-    outhandle = tf
-  else:
-    outhandle = StringIO() #Store the file in memory for speed.
-
-  if options.xxpdf: pagesize = (590, 890) # Use the old incorect page sizes from xxpdf.
-  else: pagesize = reportlab.lib.pagesizes.A4
-
-  start= time.time()
-  c = RascalPDF.PrintJob(output=outhandle, pagesize=pagesize, landscape=options.landscape)
-    
-  if args: c.feed(file(args[0]))
-  else: c.feed(sys.stdin)
-
-  stop = time.time()
-  log.info("Render time: %s seconds" % (stop - start))
-  
-  if options.evince:
-    if outfile is None:
-      tf = tempfile.NamedTemporaryFile(suffix='.pdf' ) #Create a temporary file name. (WARNING THERE Is a risk of a race condition here )
+  try:
+    outfile = None
+    if options.version:
+      if __version__ == "__" + "VERSION__":  #Making this one string confuses the version replacement routine when building the dist package.
+	print getVersion()
+      else:
+	print __version__
+      sys.exit(0)
+      
+    if options.outputfile:
+      outfile = options.outputfile
+      outhandle = file(outfile,"w")
+    elif options.zmodem:
+      tf = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
       outfile = tf.name
       log.debug("Temporary outfile: %s", outfile)
-      tf.close()
-      f=file(outfile,"w")
-      outhandle.seek(0)
-      f.write(outhandle.read())
-      f.flush()
-      f.close()
+      outhandle = tf
+    else:
+      outhandle = StringIO() #Store the file in memory for speed.
+
+    if options.xxpdf: pagesize = (590, 890) # Use the old incorect page sizes from xxpdf.
+    else: pagesize = reportlab.lib.pagesizes.A4
+
+    start= time.time()
+    c = RascalPDF.PrintJob(output=outhandle, pagesize=pagesize, landscape=options.landscape)
       
-    log.debug("OUTFILE: %s", outfile)
-    os.system("xdg-open %s" % (outfile))
+    if args: c.feed(file(args[0]))
+    else: c.feed(sys.stdin)
 
-  if options.zmodem:
-    if not options.tty: options.tty=os.environ['TTY']
-    resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
-    cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
-    log.debug( cmd)
-    os.system(cmd)
-    for cmd in [ "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
-      cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
-      os.system(cmdstr)
+    stop = time.time()
+    log.info("Render time: %s seconds" % (stop - start))
+    
+    if options.evince:
+      if outfile is None:
+	tf = tempfile.NamedTemporaryFile(suffix='.pdf' ) #Create a temporary file name. (WARNING THERE Is a risk of a race condition here )
+	outfile = tf.name
+	log.debug("Temporary outfile: %s", outfile)
+	tf.close()
+	f=file(outfile,"w")
+	outhandle.seek(0)
+	f.write(outhandle.read())
+	f.flush()
+	f.close()
+	
+      log.debug("OUTFILE: %s", outfile)
+      os.system("xdg-open %s" % (outfile))
 
-  if options.printer:
-    pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
-    outhandle.flush()
-    outhandle.seek(0)
-    pipe.write(outhandle.read())
-    pipe.close()
+    if options.zmodem:
+      if not options.tty: options.tty=os.environ['TTY']
+      resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
+      cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
+      log.debug( cmd)
+      os.system(cmd)
+      for cmd in [ "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
+	cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
+	os.system(cmdstr)
 
-  if options.to:
-    log.debug("RasEmail option set")
-    import RasEmail
-    outhandle.flush()
-    outhandle.seek(0)
-    msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=None, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
-    RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
-    log.debug("Message build")
-    RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
+    if options.printer:
+      pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
+      outhandle.flush()
+      outhandle.seek(0)
+      pipe.write(outhandle.read())
+      pipe.close()
 
+    if options.to:
+      log.debug("RasEmail option set")
+      import RasEmail
+      outhandle.flush()
+      outhandle.seek(0)
+      msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=None, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
+      RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
+      log.debug("Message build")
+      RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
+  except RasConfig.RascalPDFException, e:
+    for f in e.args: print f
+    if options.debug:
+      raise
+    else:
+      sys.exit(1)
+    

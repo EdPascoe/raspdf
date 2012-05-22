@@ -36,7 +36,7 @@ right margins have to checked by hand.
  0{$RIGHT(10)}RIGHT10
   Font Tests
  {$FONTNAME("gothic.ttf")}{$SETCOLOR(0,0,0.42)}
- {$SF(20.1)}This is the gothic font {$SF(12)}
+ {$SF(20.1)}This is the gothic font © Ed Pascoe 2012 {$SF(12)}
  {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
  {$FONTNAME("arialn.ttf")}{$SETCOLOR(0,0,0.42)}
  {$SF(11)}This is the arial narrow font 11 point{$SF(12)}

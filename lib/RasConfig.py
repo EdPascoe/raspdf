@@ -20,7 +20,10 @@ log = logging.getLogger("config")
 
 searchLocations = ["images", "templates"]; #Locations to search for files
 
-class RasConfigError(Exception):
+class RascalPDFException(Exception):
+   """The base exception for any fatal RasPDF error"""
+
+class RasConfigError(RascalPDFException):
   """Thrown on configuration errors"""
 class RasConfigNoSuchFileError(RasConfigError):
   """Thrown when fileLocate fails"""
@@ -110,8 +113,7 @@ try:
   log.debug("Reading config %s", configfile)
   xmmail.readfp(file(configfile))
 except ParsingError: #The original xmmail.conf file has perl extentions which we just ignore.
-  print >>sys.stderr, "The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (configfile)
-  sys.exit(1)
+  raise RasConfigError("The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (configfile))
 except RasConfigNoSuchFileError:
   print >> sys.stderr, "Could not locate an xmmail.conf file. Please create a file called /etc/xmmail.conf that looks something like:"
   print >> sys.stderr, """[global]
@@ -126,11 +128,7 @@ readreceipt = True
 ;use the same broken page size code as xxpdf.
 xxpdf = True
 """
-  sys.exit(1)
-
-#
-#config = ConfigParser.ConfigParser()
-#config.read(’example.cfg’)
+  raise RasConfigError("Fatal Error")
 
 if __name__ == "__main__":
   print fileLocate("/etc/hosts")

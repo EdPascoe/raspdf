@@ -39,16 +39,13 @@ log = logging.getLogger()
 import re, os, os.path, sys, tempfile
 from copy import copy, deepcopy
 from reportlab.pdfbase.pdfmetrics import stringWidth
-from RasConfig import fileLocate
+from RasConfig import fileLocate, RascalPDFException
 
 cnstNORMAL = 0
 cnstBOLD = 1
 cnstITALIC = 2
 
 _ISYAMLTEMPLATE = 99 #Internal use only.
-
-class RascalPDFException(Exception):
-  """Errors thrown by the PDF system"""
 
 class RascalPDF:
   """PDF library for use with rascal. Tries to be a compatible with the old perl xxpdf library"""
@@ -602,7 +599,10 @@ class PrintJob:
         fncall = cmd[0]
         if len(cmd) > 1:
           params, kwargs = self.__args2kw(cmd[1:])
-          self.rascalpdf.fnexec(fncall, *params, **kwargs)
+          try: self.rascalpdf.fnexec(fncall, *params, **kwargs)
+	  except TypeError:
+	    print "Failed to call fnexec(%s, %s, %s)" % (fncall, params, kwargs)
+	    raise
         else:
           self.rascalpdf.fnexec(fncall)
         lineno += 1

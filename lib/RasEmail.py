@@ -31,6 +31,8 @@ import smtplib
 
 log = logging.getLogger("config")
 
+class RascalEmailError(RasConfig.RascalPDFException):
+   """Thrown on email exceptions"""
 
 def h2text(data):
   if not isinstance(data,unicode):
@@ -148,7 +150,12 @@ def sendMail(tolist, msg, mailfrom = None, cclist=None, bcclist=None):
   log.debug("Connecting to smtp server %s", smtpserver)
   s = smtplib.SMTP(smtpserver)
   s.set_debuglevel(0)
-  s.sendmail(mailfrom, destemail, msg.as_string())
+  try:
+    s.sendmail(mailfrom, destemail, msg.as_string())
+  except smtplib.SMTPRecipientsRefused, e:
+    raise RascalEmailError("The mail server refused to send mail to one of the recipients.", e)
+  
+     
   s.quit()
 
 if __name__=="__main__":
