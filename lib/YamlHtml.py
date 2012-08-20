@@ -17,6 +17,9 @@ import sys, os, os.path
 import jinja2, jinja2.exceptions
 import threading 
 import tempfile
+import RasConfig
+import logging
+log = logging.getLogger()
 
 renderLock = threading.Lock() #Incase this module is ever used in a multithreaded environment.
 
@@ -52,8 +55,7 @@ def getJinjaEnvironment(*templatefilelocations):
     cloc.append(jinja2.FileSystemLoader(location))
     
   loader = jinja2.loaders.ChoiceLoader(cloc) #Choice loader
-  return  jinja2.Environment(loader=loader)  #Uncomment to have undefineds throw exeption:, undefined=jinja2.StrictUndefined)
-
+  return  jinja2.Environment(loader=loader, undefined=jinja2.StrictUndefined)  #Comment out to stop undefineds throwing exeption:, undefined=jinja2.StrictUndefined)
 
 def run(inputData, outputFileName):
   """Used when calling as a library from another module.
@@ -63,6 +65,7 @@ def run(inputData, outputFileName):
      PDF will be written to outputFileName
   """
 
+  templatefilename = inputData['template']
   templated = os.path.dirname(inputData['template'])
   templatef = os.path.basename(inputData['template'])
   inputData['data']['static'] = templated #To path relative file locations
@@ -70,21 +73,26 @@ def run(inputData, outputFileName):
   #os.chdir(templated) #We need to change to the directory holding the base html file so that relative paths work.
   #sys.stderr.write("New dir: '%s" % (templated))
   #Create a jinja template
-  updateTemplateLocations(os.path.dirname(__file__),['.','..','/etc','/rascal/templates'])
-  env = getJinjaEnvironment(templated)
+  td = RasConfig.get('global','templates','/rascal/templates')
+  td = [ x.strip() for x in str(td).split(',')] #Convert the comma separated list of 
   
-  template = env.get_template(templatef)
+  updateTemplateLocations(os.path.dirname(__file__),['.','..','/etc'] + td)
+  env = getJinjaEnvironment(templated)
+  if templatefilename[0] == "/": #Is an absolute file location
+    template = env.get_template(templatef)
+  else:
+    template = env.get_template(templatefilename)
+  inputData['data']['SRC'] = os.path.dirname(template.filename) #Relative paths won't work because we are dealing with temp files.
   
   tempInput = tempfile.NamedTemporaryFile(suffix='.html')
   tempInput.write(template.render(**inputData['data'])) #Render the template to pure html.
   tempInput.flush()
+  #tempInput.seek(0); print tempInput.read() #Uncomment for debugging.
   
   wkpdfHandle=os.system("wkhtmltopdf -q '%s' '%s' 2>/dev/null " % (tempInput.name, outputFileName))
   #os.chdir(curdir)
   return True
   
-  
-
 
 if __name__ == "__main__": #For testing only.
   import yaml

@@ -36,12 +36,10 @@ def getVersion():
 
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
-  import RasConfig
-  readreceipt = RasConfig.getBool('global','readreceipt')
-  xxpdf = RasConfig.getBool('global','xxpdf')
 
   usage = "Usage: %prog [<options>] \n" + __doc__+"\n"
   parser = optparse.OptionParser(usage)
+  parser.add_option("-C", "--config", dest="config", type="string", default="xmmail.conf", help="Config file location")
   parser.add_option("-z", "--sz", "--zmodem", dest="zmodem", action="store_true", help="After generating the pdf file transfer via zmodem")
   parser.add_option("-l", "--landscape", dest="landscape", action="store_true", default=False, help="Use landscape A4" )
   parser.add_option("--evince", dest="evince", action="store_true", help="After generating the pdf file display using evince")
@@ -50,14 +48,14 @@ def main():
   parser.add_option("--debug", dest="debug", action="store_true", help="Show debugging information")
   parser.add_option("-f", "--outputfile", dest="outputfile", type="string", help="Send output to file with given name instead of a temp file.")
   parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
-  parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", default=xxpdf, help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69"  [%default] ')
+  parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69"  ')
   parser.add_option("-d", "--printer", dest="printer", type="string", help='Send the pdf to given cups printer')
   parser.add_option("--to", dest="to", action="append", help="Address to send the mail to. May be specified multiple times or addresses may be comma separated.")
   parser.add_option("--cc", dest="cc", action="append", help="Addresses for the cc list. Same usage as --to")
   parser.add_option("--bcc", dest="bcc", action="append", help="Addresses for the bcc list. Same usage as --to")
   parser.add_option("--from", dest="mailfrom", type="string", help="Address to send the mail from. Read receipts will be sent back here if requested.")
   parser.add_option("--subject", dest="subject", default="", help="Message subject")
-  parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", default=readreceipt , help="Request a read receipt on any outgoing email [%default]")
+  parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", help="Request a read receipt on any outgoing email.")
 
   (options, args) = parser.parse_args()
 
@@ -71,6 +69,13 @@ def main():
 
   if options.verbose:  log.setLevel(logging.INFO)
   if options.debug:  log.setLevel(logging.DEBUG)
+
+  import RasConfig
+  RasConfig.load(options.config, {'readreceipt': 'False', 'xxpdf': 'True' } )
+  if options.readreceipt is None:
+    setattr(options,'readreceipt',RasConfig.getBool('global','readreceipt'))
+  if options.xxpdf is None:
+    setattr(options,'xxpdf', RasConfig.getBool('global','xxpdf'))
 
   #Do the imports AFTER logging has been set up.
   import RascalPDF, RasConfig 

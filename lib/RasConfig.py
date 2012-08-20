@@ -12,9 +12,11 @@ __copyright__ = "Ed Pascoe 2011. All rights reserved."
 __license__ = "GNU LGPL version 2"
 __status__ = "Production"
 
-from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError
+from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError, NoOptionError
 import os, os.path, sys
 import logging
+
+xmmail = {}
 
 log = logging.getLogger("config")
 
@@ -73,9 +75,15 @@ def fileLocate(filename):
         return fname
   raise RasConfigNoSuchFileError("Could not find filename %s in any of the following directories: %s" % ( filename, " : ".join(searchLocations)))
 
-def get(section, option):
+def get(section, option, default=None):
   """Return the requested entry from the xmmail config file."""
-  return xmmail.get(section, option)
+  try:
+    return xmmail.get(section, option)
+  except NoOptionError:
+    if default is not None: 
+      return default
+    else:
+      raise
 
 def get_default(section, option, default=None):
   """As for get but returns default if key does not exist"""
@@ -104,36 +112,49 @@ def getBool(section, option, default=False):
 
 _initSearchLocations() #Build the search paths for finding files later.
 
-xmmail = ConfigParser()
-try:
-  xmmail.readfp(file(fileLocate('xmmail.conf')))
-except ParsingError: #The original xmmail.conf file has perl extentions which we just ignore.
-  print >>sys.stderr, "The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (fileLocate('xmmail.conf'))
-  sys.exit(1)
-except RasConfigNoSuchFileError:
-  print >> sys.stderr, "Could not locate an xmmail.conf file. Please create a file called /etc/xmmail.conf that looks something like:"
-  print >> sys.stderr, """[global]
-smtpserver = localhost
-from = <donotreply@pascoe.co.za>
-subject = Generic rascal report
-mime = application/octet-stream
-filename = report.pdf
-message = Your report should be attached.
-;Ask for read receipts when sending mail.
-readreceipt = True
-;use the same broken page size code as xxpdf.
-xxpdf = True
-"""
-  sys.exit(1)
-
-#
-#config = ConfigParser.ConfigParser()
-#config.read(’example.cfg’)
+def load(configfile='xmmail.conf', defaults={'smtpserver': '127.0.0.1', 'templates:':'/rascal/templates', 'filename': 'report.pdf'} ):
+  global xmmail
+  assert hasattr(defaults, 'items') #defaults MUST be a dict.
+  #log.debug("load: Defaults: %s Type: %s", defaults, type(defaults))
+  log.debug("Config file: %s", fileLocate(configfile))
+  xmmail = ConfigParser(defaults)
+  try:
+    xmmail.readfp(file(fileLocate(configfile)))
+  except ParsingError:  #The original xmmail.conf file has perl extentions which we just ignore.
+    print >>sys.stderr, "The format of %s  is too old.\nPlease edit it and change the message option to a single line." % (fileLocate(configfile))
+    sys.exit(1)
+  except RasConfigNoSuchFileError:
+    print >> sys.stderr, "Could not locate an %s file. Please create a file called /etc/%s that looks something like:" % (configfile, configfile)
+    print >> sys.stderr, """[global]
+  smtpserver = localhost
+  from = <donotreply@pascoe.co.za>
+  subject = Generic rascal report
+  mime = application/octet-stream
+  filename = report.pdf
+  message = Your report should be attached.
+  ;Ask for read receipts when sending mail.
+  readreceipt = True
+  ;use the same broken page size code as xxpdf.
+  xxpdf = True
+  templates = '/rascal/templates'
+  """ 
+    sys.exit(1)
 
 if __name__ == "__main__":
+  #Enable logging
+  formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")
+  output = logging.StreamHandler()
+  output.setFormatter(formatter)
+  log.addHandler(output)
+  log.setLevel(logging.DEBUG)
+
+  load()
   print fileLocate("/etc/hosts")
   print fileLocate("passwd")
   print fileLocate("xmmail.conf")
   print get('global','smtpserver')
-  print get_default('global','zzzsmtpserver', 'Nope')
+  print get('global','zzzsmtpserver', 'Nope')
+  print get('global','azzzsmtpserver' , False)
+  print get('global','templates' , False)
+
 

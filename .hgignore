@@ -1,0 +1,7 @@
+syntax: glob
+*~
+*.swp
+*.pyc
+.bash_history
+ENV
+raspdf
