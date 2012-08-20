@@ -502,7 +502,7 @@ class Options:
     if y == "-":
       self.yaml = yaml.load(sys.stdin)
     else:
-      if isinstance(self,yaml, dict):
+      if isinstance(self.yaml, dict):
         pass #Already converted.
       else:
         import yaml
