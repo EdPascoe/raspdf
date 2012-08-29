@@ -142,7 +142,7 @@ def main():
     log.debug("OUTFILE: %s", outfile)
     os.system("xdg-open %s" % (outfile))
 
-  zmodemterms = [x.strip() for x in RasConfig.get('global','zmodemterm')]
+  zmodemterms = [x.strip() for x in RasConfig.get('global','zmodemterm').split(",")]
 
   if options.web or (options.zmodem and RasConfig.getBool('global','noterraterm') and os.environ['TERM'] not in zmodemterms):
     import shutil, pwd
