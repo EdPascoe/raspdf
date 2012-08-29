@@ -160,7 +160,7 @@ class RascalPDF:
 
   def _regfnFontSetSizex(self, size):
     """For registerkeys, set font size"""
-    self.font.set(size=int(size))
+    self.font.set(size=int(float(size)))
 
   def _regfnFontSetName(self, name):
     """For registerkeys, set font name"""
@@ -541,7 +541,10 @@ class PrintJob:
     result = self._1stParse(fhandle)
     if result == _ISYAMLTEMPLATE:
       import YamlTemplate  #Import as late as possible to reduce dependency issues if rest of system is not installed.
-      return YamlTemplate.run(inputh=fhandle, output=self.pdffile)
+      try:
+        return YamlTemplate.run(inputh=fhandle, output=self.pdffile)
+      except YamlTemplate.YamlTemplateError:
+        raise RascalPDFException(*e.args)
     else:
       self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # © Ed Pascoe 2011. All rights reserved.
+# $Id:$
 """
 Generate PDF reports designed to interact well with rascal.
 Replacement for the old xxpdf program.
@@ -24,14 +25,27 @@ from cStringIO import StringIO
 def getVersion():
   """Returns the current version if we are running out of a git repository"""
   import re
+  def __searchOne(search,lines):
+    """Returns the re info for the first line that matches"""
+    r = re.compile(search)
+    for line in lines:
+      s = r.search(line)
+      if s: return s
+    return False
+
   root = os.path.join(os.path.dirname(__file__), "..")
   try:
     if os.path.exists(os.path.join(root,".git")):
-      branch =  list([ x for x in os.popen("git branch -a --no-color ","r").readlines() if x.find('*') > -1 ])[0].strip()[2:]
+      gitdir = "--git-dir=" + os.path.join(root, ".git")
+      branch =  list([ x for x in os.popen("git %s branch -a --no-color " % (gitdir) ,"r").readlines() if x.find('*') > -1 ])[0].strip()[2:]
       version = re.sub(r'v','', os.popen("git describe", "r").read().strip())
-      return "RasPDF PDF Library. Version: gitsrc-%s %s" % (branch, version)
+      return "RasPDF PDF Library. Version: gitsrc-%s %s" % (branch, version) #Eg: RasPDF PDF Library. Version: gitsrc-master 1.0.6-2-gd335725
+    elif os.path.exists(os.path.join(root,".hg")):
+      summary = os.popen("cd %s && hg summary" % (root)).readlines()
+      tip = __searchOne(r'^parent: (\d+):(\S+) tip\s*$', summary)
+      return "RasPDF PDF Library. Version: hgsrc %s.%s" % (tip.group(1),tip.group(2))
   except:
-    pass
+    raise
   return "RasPDF PDF library. Exported Source No version number."
 
 def main():
@@ -55,6 +69,7 @@ def main():
   parser.add_option("--bcc", dest="bcc", action="append", help="Addresses for the bcc list. Same usage as --to")
   parser.add_option("--from", dest="mailfrom", type="string", help="Address to send the mail from. Read receipts will be sent back here if requested.")
   parser.add_option("--subject", dest="subject", default="", help="Message subject")
+  parser.add_option("--message", dest="message", default="", help="Message body")
   parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", help="Request a read receipt on any outgoing email.")
 
   (options, args) = parser.parse_args()
@@ -147,7 +162,11 @@ def main():
     import RasEmail
     outhandle.flush()
     outhandle.seek(0)
-    msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=None, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
+    if options.message: 
+      bodyhtml = "<pre>" + options.message + "</pre>"
+    else:
+      bodyhtml = None
+    msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=bodyhtml, bodytext=options.message, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
     RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
     RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
 

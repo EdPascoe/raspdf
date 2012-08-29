@@ -43,6 +43,9 @@ log = logging.getLogger("YamlOfice")
 
 global convertor, oobin, oobinpath, oolibpath, ooproc
 
+class YamlOfficeException(Exception):
+  """Thrown on Fatal exceptions"""
+
 ### The first thing we ought to do is find a suitable OpenOffice installation
 ### with a compatible pyuno library that we can import.
 extrapaths = glob.glob('/usr/lib*/openoffice*/program') + \
@@ -499,7 +502,7 @@ class Options:
     if y == "-":
       self.yaml = yaml.load(sys.stdin)
     else:
-      if isinstance(self,yaml, dict):
+      if isinstance(self.yaml, dict):
         pass #Already converted.
       else:
         import yaml

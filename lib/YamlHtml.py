@@ -78,10 +78,14 @@ def run(inputData, outputFileName):
   
   updateTemplateLocations(os.path.dirname(__file__),['.','..','/etc'] + td)
   env = getJinjaEnvironment(templated)
-  if templatefilename[0] == "/": #Is an absolute file location
-    template = env.get_template(templatef)
-  else:
-    template = env.get_template(templatefilename)
+  try:
+    if templatefilename[0] == "/": #Is an absolute file location
+      template = env.get_template(templatef)
+    else:
+      template = env.get_template(templatefilename)
+  except jinja2.exceptions.TemplateNotFound, e:
+    raise YamlHtmlError("The template %s cannot be found" % (template), e)
+
   inputData['data']['SRC'] = os.path.dirname(template.filename) #Relative paths won't work because we are dealing with temp files.
   
   tempInput = tempfile.NamedTemporaryFile(suffix='.html')
