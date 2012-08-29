@@ -15,7 +15,7 @@ __status__ = "Production"
 
 import logging
 import optparse
-import os, sys, time, tempfile
+import os, sys, time, tempfile, os.path
 import reportlab.lib.pagesizes
 import smtplib
 import socket
@@ -55,6 +55,7 @@ def main():
   parser = optparse.OptionParser(usage)
   parser.add_option("-C", "--config", dest="config", type="string", default="xmmail.conf", help="Config file location")
   parser.add_option("-z", "--sz", "--zmodem", dest="zmodem", action="store_true", help="After generating the pdf file transfer via zmodem")
+  parser.add_option("-w", "--web", "--web", dest="web", action="store_true", help="After generating the pdf file upload to webdocs and show location.")
   parser.add_option("-l", "--landscape", dest="landscape", action="store_true", default=False, help="Use landscape A4" )
   parser.add_option("--evince", dest="evince", action="store_true", help="After generating the pdf file display using evince")
   parser.add_option("-v", "--verbose", dest="verbose", action="store_true", help="Show debugging information")
@@ -86,7 +87,7 @@ def main():
   if options.debug:  log.setLevel(logging.DEBUG)
 
   import RasConfig
-  RasConfig.load(options.config, {'readreceipt': 'False', 'xxpdf': 'True' } )
+  RasConfig.load(options.config, {'readreceipt': 'False', 'xxpdf': 'True', 'noterraterm': 'True', 'zmodemterm': 'vt220, vt220a, vt320' } )
   if options.readreceipt is None:
     setattr(options,'readreceipt',RasConfig.getBool('global','readreceipt'))
   if options.xxpdf is None:
@@ -141,7 +142,28 @@ def main():
     log.debug("OUTFILE: %s", outfile)
     os.system("xdg-open %s" % (outfile))
 
-  if options.zmodem:
+  zmodemterms = [x.strip() for x in RasConfig.get('global','zmodemterm')]
+
+  if options.web or (options.zmodem and RasConfig.getBool('global','noterraterm') and os.environ['TERM'] not in zmodemterms):
+    import shutil, pwd
+    uname = pwd.getpwuid(os.getuid())[0]
+    dstdir = os.path.join(RasConfig.get('global','webdocs','/tmp'),uname)
+    if not os.path.exists(dstdir): os.makedirs(dstdir,mode=0777)
+    dstfile = os.path.join(dstdir,os.path.basename(outfile))
+    dsturl = RasConfig.get('global','weburl','file://tmp')
+    dsturl = dsturl + "/" + uname + "/" + os.path.basename(outfile)
+    shutil.copy(outfile, dstfile) 
+    os.chmod(dstfile, 0777)
+    os.system("clear")
+    print "\n" * 10
+    print "Your report is available here:\n\n      %s" % (dsturl)
+    print "\n" * 10
+    print "Hit <enter> to continue"
+    if not options.tty: options.tty=os.environ['TTY']
+    f=file(options.tty)
+    f.readline()
+    os.system("clear")
+  elif options.zmodem:
     if not options.tty: options.tty=os.environ['TTY']
     resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
     cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
