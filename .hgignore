@@ -5,3 +5,4 @@ syntax: glob
 .bash_history
 ENV
 raspdf
+xmmail.conf
