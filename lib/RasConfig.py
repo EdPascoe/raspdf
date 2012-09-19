@@ -138,7 +138,14 @@ def load(configfile='xmmail.conf', defaults={'smtpserver': '127.0.0.1', 'templat
   xxpdf = True
   templates = '/rascal/templates'
   """ 
-    sys.exit(1)
+  rascfg = get('global','rascalcfg','rascal.cfg')
+  if os.path.exists(rascfg):
+    for line in file(rascfg):
+      line=line.strip()
+      if len(line) == 0  or line[0] == "#" or line[0] == ';': continue #Skip comments and blank lines.
+      p = list( [ x.strip() for x in line.split('=',1) ] )
+      if len(p) == 1: continue #We can't handle single words
+      xmmail.set('global', p[0].lower(), p[1]) #Rascal has a creepy obsession with uppercase variables.
 
 if __name__ == "__main__":
   #Enable logging
@@ -156,5 +163,6 @@ if __name__ == "__main__":
   print get('global','zzzsmtpserver', 'Nope')
   print get('global','azzzsmtpserver' , False)
   print get('global','templates' , False)
+  print get('global','SERVER' , False)
 
 

@@ -543,8 +543,8 @@ class PrintJob:
       import YamlTemplate  #Import as late as possible to reduce dependency issues if rest of system is not installed.
       try:
         return YamlTemplate.run(inputh=fhandle, output=self.pdffile)
-      except YamlTemplate.YamlTemplateError:
-        raise RascalPDFException(*e.args)
+      except YamlTemplate.YamlTemplateError, e:
+        raise RascalPDFException(e)
     else:
       self.rascalpdf = RascalPDF(self.pdffile, pagesize=self.pagesize, isLandscape=self.landscape)
 
