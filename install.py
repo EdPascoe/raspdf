@@ -47,7 +47,15 @@ if not os.path.exists(destenv):
 
 pip = os.path.join(destenv, "bin/pip")
 
-cmd = "%s install -v --no-index -r install/requirements.txt --environment=%s" % (pip, destenv)
+#Sigh. Some companies ( *cough* Cummins *cough) have political/corporate stupididty issues preventing them from running anything newer than RHES5 which means python 2.4 only.
+#This allows us to customise the requirements for older versions of python.
+requirements_file = "install/requirements.%s.%s.txt" % (sys.version_info.major, sys.version_info.minor)
+if not os.path.exists(requirements_file):
+  requirements_file = "install/requirements.txt"
+
+
+#cmd = "%s install -v --no-index -r install/requirements.txt --environment=%s" % (pip, destenv) #TODO: --environment seems to not be supported in some versions of pip ???
+cmd = "%s install -v --no-index -r install/requirements.txt" % (pip)
 log.debug("executing %s", cmd)
 os.system(cmd)
 #TODO: need command line arguments to choose what is needed during the install
