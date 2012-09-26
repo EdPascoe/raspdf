@@ -93,6 +93,18 @@ def sql(sqlquery, *params):
   c.execute(sqlquery, params)
   return c
 
+def sqlrow(sqlquery, *params):
+  """Return an single row  with the given query"""
+  conn = __dbconn()
+  c = conn.cursor()
+  #params = list(params)
+  log.debug("SQL: %s ", sqlquery)
+  log.debug("Params: %s", params)
+  c.execute(sqlquery, params)
+  out = c.fetchone()
+  c.close()
+  return out
+
 def run(inputData, outputFileName):
   """Used when calling as a library from another module.
      inputData should be a dictionary containing at the least:
@@ -123,6 +135,7 @@ def run(inputData, outputFileName):
 
   inputData['data']['SRC'] = os.path.dirname(template.filename) #Relative paths won't work because we are dealing with temp files.
   inputData['data']['sql'] = sql
+  inputData['data']['sqlrow'] = sqlrow
   inputData['data']['__file__'] = templatefilename #Jinja doesn't understand this field by default.
   inputData['data']['now'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
   
