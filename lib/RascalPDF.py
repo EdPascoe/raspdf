@@ -54,7 +54,7 @@ class RascalPDF:
   """PDF library for use with rascal. Tries to be a compatible with the old perl xxpdf library"""
   canvas = None
   #Margins
-  lmargin = 0.7 * cm
+  lmargin = 0.5 * cm
   tmargin = 0.75 * cm
   bmargin = 0.5 * cm
   lmarginDefault = None
@@ -605,9 +605,9 @@ class PrintJob:
         if len(cmd) > 1:
           params, kwargs = self.__args2kw(cmd[1:])
           try: self.rascalpdf.fnexec(fncall, *params, **kwargs)
-	      except TypeError:
-	        print "Failed to call fnexec(%s, %s, %s)" % (fncall, params, kwargs)
-	        raise
+          except TypeError:
+            print "Failed to call fnexec(%s, %s, %s)" % (fncall, params, kwargs)
+            raise
         else:
           self.rascalpdf.fnexec(fncall)
         lineno += 1

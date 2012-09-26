@@ -12,7 +12,7 @@ __copyright__ = "Ed Pascoe 2011. All rights reserved."
 __license__ = "GNU LGPL version 2"
 __status__ = "Production"
 
-from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError
+from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError, NoOptionError
 import os, os.path, sys
 import logging
 
