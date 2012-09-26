@@ -12,7 +12,7 @@ __copyright__ = "Ed Pascoe 2011. All rights reserved."
 __license__ = "GNU LGPL version 2"
 __status__ = "Production"
 
-from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError, NoOptionError
+from ConfigParser import ParsingError, SafeConfigParser as ConfigParser, NoSectionError
 import os, os.path, sys
 import logging
 
@@ -22,7 +22,10 @@ log = logging.getLogger("config")
 
 searchLocations = ["images", "templates"]; #Locations to search for files
 
-class RasConfigError(Exception):
+class RascalPDFException(Exception):
+   """The base exception for any fatal RasPDF error"""
+
+class RasConfigError(RascalPDFException):
   """Thrown on configuration errors"""
 class RasConfigNoSuchFileError(RasConfigError):
   """Thrown when fileLocate fails"""

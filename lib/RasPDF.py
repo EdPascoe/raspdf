@@ -38,7 +38,7 @@ def getVersion():
     if os.path.exists(os.path.join(root,".git")):
       gitdir = "--git-dir=" + os.path.join(root, ".git")
       branch =  list([ x for x in os.popen("git %s branch -a --no-color " % (gitdir) ,"r").readlines() if x.find('*') > -1 ])[0].strip()[2:]
-      version = re.sub(r'v','', os.popen("git describe", "r").read().strip())
+      version = re.sub(r'v','', os.popen("git describe 2>/dev/null", "r").read().strip())
       return "RasPDF PDF Library. Version: gitsrc-%s %s" % (branch, version) #Eg: RasPDF PDF Library. Version: gitsrc-master 1.0.6-2-gd335725
     elif os.path.exists(os.path.join(root,".hg")):
       summary = os.popen("cd %s && hg summary" % (root)).readlines()
@@ -62,7 +62,7 @@ def main():
   parser.add_option("-V", "--version", dest="version", action="store_true", help="Show running version")
   parser.add_option("--debug", dest="debug", action="store_true", help="Show debugging information")
   parser.add_option("-f", "--outputfile", dest="outputfile", type="string", help="Send output to file with given name instead of a temp file.")
-  parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
+  parser.add_option("--tty", dest="tty", type="string", help="The running TTY to use for zmodem. Usually set as the TTY environment variable.")
   parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69"  ')
   parser.add_option("-d", "--printer", dest="printer", type="string", help='Send the pdf to given cups printer')
   parser.add_option("--to", dest="to", action="append", help="Address to send the mail to. May be specified multiple times or addresses may be comma separated.")
@@ -139,56 +139,53 @@ def main():
       f.flush()
       f.close()
       
-    log.debug("OUTFILE: %s", outfile)
-    os.system("xdg-open %s" % (outfile))
+    if args: c.feed(file(args[0]))
+    else: c.feed(sys.stdin)
 
-  zmodemterms = [x.strip() for x in RasConfig.get('global','zmodemterm').split(",")]
+(??)  if options.zmodem:
+(??)    if not options.tty: options.tty=os.environ['TTY']
+(??)    resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
+(??)    cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
+(??)    log.debug( cmd)
+(??)    os.system(cmd)
+(??)    for cmd in [ "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
+(??)      cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
+(??)      os.system(cmdstr)
 
-  if options.web or (options.zmodem and RasConfig.getBool('global','noterraterm') and os.environ['TERM'] not in zmodemterms):
-    import shutil, pwd
-    uname = pwd.getpwuid(os.getuid())[0]
-    dstdir = os.path.join(RasConfig.get('global','webdocs','/tmp'),uname)
-    if not os.path.exists(dstdir): os.makedirs(dstdir,mode=0777)
-    dstfile = os.path.join(dstdir,os.path.basename(outfile))
-    dsturl = RasConfig.get('global','weburl','file://tmp')
-    dsturl = dsturl + "/" + uname + "/" + os.path.basename(outfile)
-    shutil.copy(outfile, dstfile) 
-    os.chmod(dstfile, 0777)
-    os.system("clear")
-    print "\n" * 10
-    print "Your report is available here:\n\n      %s" % (dsturl)
-    print "\n" * 10
-    print "Hit <enter> to continue"
-    if not options.tty: options.tty=os.environ['TTY']
-    f=file(options.tty)
-    f.readline()
-    os.system("clear")
-  elif options.zmodem:
-    if not options.tty: options.tty=os.environ['TTY']
-    resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
-    cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
-    log.debug( cmd)
-    os.system(cmd)
-    for cmd in [ "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
-      cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
-      os.system(cmdstr)
+    if options.zmodem:
+      if not options.tty: options.tty=os.environ['TTY']
+      resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
+      cmd = "sz -eq %s < %s > %s %s " % (outfile, options.tty, options.tty, resetstr)
+      log.debug( cmd)
+      os.system(cmd)
+      for cmd in [ "tput rmacs", "tput krfr", "clear", "echo ' '"   ] :
+	cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
+	os.system(cmdstr)
 
-  if options.printer:
-    pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
-    outhandle.flush()
-    outhandle.seek(0)
-    pipe.write(outhandle.read())
-    pipe.close()
+    if options.printer:
+      pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
+      outhandle.flush()
+      outhandle.seek(0)
+      pipe.write(outhandle.read())
+      pipe.close()
 
-  if options.to:
-    import RasEmail
-    outhandle.flush()
-    outhandle.seek(0)
-    if options.message: 
-      bodyhtml = "<pre>" + options.message + "</pre>"
+    if options.to:
+      log.debug("RasEmail option set")
+      import RasEmail
+      outhandle.flush()
+      outhandle.seek(0)
+      if options.message: 
+        bodyhtml = "<pre>" + options.message + "</pre>"
+      else:
+        bodyhtml = None
+      msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=None, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
+      RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
+      log.debug("Message build")
+      RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
+  except RasConfig.RascalPDFException, e:
+    for f in e.args: print f
+    if options.debug:
+      raise
     else:
-      bodyhtml = None
-    msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=bodyhtml, bodytext=options.message, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
-    RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
-    RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
-
+      sys.exit(1)
+    

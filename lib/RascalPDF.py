@@ -39,7 +39,7 @@ log = logging.getLogger()
 import re, os, os.path, sys, tempfile
 from copy import copy, deepcopy
 from reportlab.pdfbase.pdfmetrics import stringWidth
-from RasConfig import fileLocate
+from RasConfig import fileLocate, RascalPDFException
 
 cnstNORMAL = 0
 cnstBOLD = 1
@@ -56,7 +56,7 @@ class RascalPDF:
   #Margins
   lmargin = 0.7 * cm
   tmargin = 0.75 * cm
-  bmargin = 1 * cm
+  bmargin = 0.5 * cm
   lmarginDefault = None
   line = "NOT YET INITITALIZED"
   linenumber = -1
@@ -160,7 +160,7 @@ class RascalPDF:
 
   def _regfnFontSetSizex(self, size):
     """For registerkeys, set font size"""
-    self.font.set(size=int(float(size)))
+    self.font.set(size=size)
 
   def _regfnFontSetName(self, name):
     """For registerkeys, set font name"""
@@ -257,7 +257,7 @@ class RascalPDF:
     self.pos.x = self.lmargin;
 
   def right(self, c):
-    c = int(c)  #Zero based to match xxpdf
+    c = self.__toInt(c)  #Zero based to match xxpdf
     if c < 0: c = 0
     self.pos.x = int(self.lmargin + self.calcWidth("_" * c))
 
@@ -282,8 +282,8 @@ class RascalPDF:
       sys.exit(5)
 
   def moverelative(self, x, y):
-    self.pos.x += int(x);
-    self.pos.y -= int(y);
+    self.pos.x += self.__toInt(x);
+    self.pos.y -= self.__toInt(y);
 
   def moveabsolute(self, x=None, y=None):
     """Move to given spot on page. x and y in cm"""
@@ -293,7 +293,8 @@ class RascalPDF:
   def printinit(self):
     """Initialize printing system"""
     log.debug("Inititializing")
-    self.pos = Point(x=self.lmargin, y=self.pagesize[1] - self.tmargin)
+    self.pos = Point(x=self.lmargin, y= self.pagesize[1] - self.tmargin)
+    self.font.set(size=10) #Default font size to match xxpdf
 
   def printend(self):
     """End printing system"""
@@ -450,16 +451,22 @@ height of the paragraph can be calculated as lineSpacing*len(lines)
   def picture(self, fname, imgwidth=None, imgheight=None):
     """Insert picture into pdf. If imgwidth and imgheight are not none they will be used to reposition the cursor after the insert."""
     self.showPageIfNeeded()
-    x = int(self.pos.x)
-    y = int(self.pos.y)
+    x = self.__toInt(self.pos.x)
+    y = self.__toInt(self.pos.y)
     if imgwidth:
-      imgwidth = int(imgwidth)
+      imgwidth = self.__toInt(imgwidth)
     if imgheight:
-      imgheight = int(imgheight)
+      imgheight = self.__toInt(imgheight)
       y = y - imgheight
 
     fname = fileLocate(fname)
     self.canvas.drawImage(fname, x, y, imgwidth, imgheight)
+
+  def __toInt(self, value):
+    """make sure value is either None or an integer"""
+    if isinstance(value, int): return value
+    if value is None: return value
+    return int(float(value))
 
 class _Parser:
   """Contains the print job broken into an array of python function calls.
@@ -479,11 +486,11 @@ class _Parser:
       leadtext = r.group(1)
       cmd = r.group(2)
       restofline = r.group(3)
-      self.cmdlist.append(("printstring", u'line="' + leadtext.replace(r'"', r'\\"') + '"'))
+      self.cmdlist.append(("printstring", u'line="' + leadtext + '"'))
       self.addCommand(cmd)
       self.parseLine(restofline)
     else:
-      self.cmdlist.append(("printstring", u'line="' + line.replace(r'"', r'\\"') + '"'))
+      self.cmdlist.append(("printstring", u'line="' + line + '"'))
 
     if hasnewline:
       self.cmdlist.append(("newline",))
@@ -597,7 +604,10 @@ class PrintJob:
         fncall = cmd[0]
         if len(cmd) > 1:
           params, kwargs = self.__args2kw(cmd[1:])
-          self.rascalpdf.fnexec(fncall, *params, **kwargs)
+          try: self.rascalpdf.fnexec(fncall, *params, **kwargs)
+	      except TypeError:
+	        print "Failed to call fnexec(%s, %s, %s)" % (fncall, params, kwargs)
+	        raise
         else:
           self.rascalpdf.fnexec(fncall)
         lineno += 1

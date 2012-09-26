@@ -31,6 +31,8 @@ import smtplib
 
 log = logging.getLogger("config")
 
+class RascalEmailError(RasConfig.RascalPDFException):
+   """Thrown on email exceptions"""
 
 def h2text(data):
   if not isinstance(data,unicode):
@@ -130,6 +132,7 @@ def addAttachements(msg, *attachments):
     encode_base64(msgdata)
     msgdata.add_header('Content-Disposition', 'attachment', filename = fname)
     msg.attach(msgdata)
+  log.debug("returning from addAttachements")
   return msg
 
 def sendMail(tolist, msg, mailfrom = None, cclist=None, bcclist=None):
@@ -144,9 +147,15 @@ def sendMail(tolist, msg, mailfrom = None, cclist=None, bcclist=None):
   destemail = __splitMailAddresses(tolist) + __splitMailAddresses(cclist) + __splitMailAddresses(bcclist)
   
   smtpserver = RasConfig.get('global', 'smtpserver')
+  log.debug("Connecting to smtp server %s", smtpserver)
   s = smtplib.SMTP(smtpserver)
-  #s.set_debuglevel(1)
-  s.sendmail(mailfrom, destemail, msg.as_string())
+  s.set_debuglevel(0)
+  try:
+    s.sendmail(mailfrom, destemail, msg.as_string())
+  except smtplib.SMTPRecipientsRefused, e:
+    raise RascalEmailError("The mail server refused to send mail to one of the recipients.", e)
+  
+     
   s.quit()
 
 if __name__=="__main__":
