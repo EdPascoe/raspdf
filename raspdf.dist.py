@@ -37,6 +37,3 @@ try:
 except KeyboardInterrupt:
   sys.exit(1)
 
-
-#
-#one
