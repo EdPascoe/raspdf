@@ -1,7 +1,26 @@
 [global]
-smtpserver = 192.168.10.4
-from = <donotreply@sheltam.co.za>
+smtpserver = 192.168.1.100
+from = <donotreply@swiftheat.com>
 subject = Generic rascal report
 mime = application/octet-stream
 filename = report.pdf
 message = Your report should be attached.
+templates = /oldhome/elp/templates, /rascal/templates
+webdocs = /var/www/reports
+weburl = http://192.168.1.98/reports
+;PG dsn settings:
+;dsn=dbname=test host=127.0.0.1 user=bob password=1234
+;schema=test
+;If dsn does not exist will use the rascal config file if it exists in the current directory.
+rascalcfg = rascal.cfg
+
+;The standard rascal.cfg config file looks something like:
+;RASCAL_SCHEMA=test
+;SERVER=dbname=test host=127.0.0.1
+;#jUSER=TESTUSER
+;USER=SUPERUSER
+;PASSWORD=RASCAL
+;DATADIRECTORY=/oldhome/elp/test
+;TZ=SAST-2
+;COMPANYCODE=01
+

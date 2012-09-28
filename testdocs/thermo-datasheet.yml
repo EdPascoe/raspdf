@@ -1,5 +1,5 @@
 #YMLTEMPLATE
-template: '/home/elp/work/tsf/swiftheat_datasheet/ds2/datasheet.html'
+template: 'datasheet/datasheet.html'
 data: 
    name: 'Bob'
    quantity: 3

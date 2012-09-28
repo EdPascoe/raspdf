@@ -25,17 +25,25 @@ class Point:
   saved = []
 
   def __init__(self,x=0,y=0):
-    self.x = x
-    self.y = y
+    self.x = self.__toInt(x)
+    self.y = self.__toInt(y)
     self.saved = []
+
+  def __toInt(self, value):
+    """make sure value is either None or an integer"""
+    if isinstance(value, int): return value
+    if value is None: return value
+    return int(float(value))
 
   def set(self, x=None, y=None, p=None):
     """Set x and y coords. P if used is a tuple (x,y) as returned by a previous call to get."""
+    x = self.__toInt(x) 
+    y = self.__toInt(y) 
     if x is not None: self.x = int(x)
     if y is not None: self.y = int(y)
     if isinstance(p, list) or isinstance(p, tuple):
-      self.x = p[0]
-      self.y = p[1]
+      self.x = self.__toInt(p[0])
+      self.y = self.__toInt(p[1])
   
   def get(self):
     """Returns a tuple of current position: (x,y)"""
@@ -74,6 +82,12 @@ class FontTracker:
       setattr(self, k, args[k])
     self.fonts = fonts[self.fontname]
   
+  def __toInt(self, value):
+    """make sure value is either None or an integer"""
+    if isinstance(value, int): return value
+    if value is None: return value
+    return int(float(value))
+
   def set(self, bold=None, italic=None, fontname=None, size=None):
     if bold is not None: self.bold = bold
     if italic is not None: self.italic = italic
@@ -82,6 +96,7 @@ class FontTracker:
       if not fonts.has_key(fontname):
         self._loadFont(fontname)
       self.fonts = fonts[fontname]
+    size = self.__toInt(size) #Incase the size is a text like "6.5"
     if size is not None: self.size = size
 
   def _loadFont(self, fontname):
@@ -114,7 +129,7 @@ class FontTracker:
     return self.fonts[fontnumber]
 
 if __name__ == "__main__":
-  f= FontTracker(fontname='times', size=10)
+  f= FontTracker(fontname='times', size="6.2")
   print dir(f)
   f.set(bold=True, italic=True)
   print f.size, f.getFontName()
