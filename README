@@ -11,3 +11,7 @@ or
 http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-amd64.tar.bz2
 No copy of wkhtmltopdf is included here because its 12Meg in size and easy to get from the above URLs.
 
+
+TODO:
+It should be possible to do a high speed html to pdf renderer using PhantomJS. Everything including the rascal code should maybe be part of a printer report renderer.
+See rasterize.js on https://github.com/ariya/phantomjs/wiki/Examples
