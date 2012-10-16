@@ -69,7 +69,7 @@ def main():
   parser.add_option("--cc", dest="cc", action="append", help="Addresses for the cc list. Same usage as --to")
   parser.add_option("--bcc", dest="bcc", action="append", help="Addresses for the bcc list. Same usage as --to")
   parser.add_option("--from", dest="mailfrom", type="string", help="Address to send the mail from. Read receipts will be sent back here if requested.")
-  parser.add_option("-s", "--subject", dest="subject", default="", help="Message subject")
+  parser.add_option("-s", "--s", "--subject", dest="subject", default="", help="Message subject")
   parser.add_option("--message", dest="message", default="", help="Message body")
   parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", help="Request a read receipt on any outgoing email.")
 
