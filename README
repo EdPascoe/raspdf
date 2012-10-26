@@ -1,3 +1,4 @@
+Version: $Id $
 This is the python version of the Rascal XXPDF system.
 
 If only the standard feature set is used it is fully compatible with xxpdf. 
@@ -10,11 +11,3 @@ http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-i386.tar.b
 or
 http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-amd64.tar.bz2
 No copy of wkhtmltopdf is included here because its 12Meg in size and easy to get from the above URLs.
-
-
-
-Do some work.
-
-Changes to other file
-
-More changes.
