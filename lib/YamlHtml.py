@@ -138,6 +138,7 @@ def run(inputData, outputFileName):
   inputData['data']['sqlrow'] = sqlrow
   inputData['data']['__file__'] = templatefilename #Jinja doesn't understand this field by default.
   inputData['data']['now'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+  inputData['data']['environ'] = os.environ
   
   tempInput = tempfile.NamedTemporaryFile(suffix='.html')
   tempInput.write(template.render(**inputData['data'])) #Render the template to pure html.
