@@ -95,6 +95,10 @@ def get_default(section, option, default=None):
   else:
     return default
 
+def set(section, option, value):
+  """"Set the given option in the given section"""
+  xmmail.set(section, option, str(value))
+
 def items(section, raw=False, vars=None):
   """Return all entries in given section"""
   try:
