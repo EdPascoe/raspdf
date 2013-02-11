@@ -748,6 +748,8 @@ class Convertor:
           else: #TSF
             outputfn = op.outputpath #TSF
             log.error("Outputfn: %s", outputfn) #TSF
+            os.chmod(outputfn, 0777)
+
         outputurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(outputfn))
         log.error("Storing to %s Outputfn: %s" , outputurl, outputfn)
         doc.storeToURL(outputurl, tuple(outputprops))
@@ -1049,7 +1051,7 @@ def run(inputData, outputFileName):
   """Used when calling as a library from another module."""
   global op
   #op = Options([ "-o", outputFileName, '-y', inputh , '--pipe=aaa' ])
-  op = Options([ "-o", outputFileName, '-y', inputData , '--port=8100'])
+  op = Options([ "-o", outputFileName, '-y', inputData , '--port=2002'])
   try:
     main()
     log.debug("Finished")
