@@ -1,5 +1,5 @@
 #YMLTEMPLATE
-template: 'datasheet/datasheet.html'
+template: 'tmc/datasheet.html'
 data: 
    name: 'Bob'
    quantity: 3

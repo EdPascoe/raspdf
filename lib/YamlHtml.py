@@ -72,6 +72,7 @@ def __dbconn():
     dsn = dsn + " user=%s password=%s" % (RasConfig.get('global','user'), RasConfig.get('global','password'))
     log.debug("Connecting using dsn: %s" % (dsn))
 
+  import psycopg2
   import psycopg2.extras #Import as late as possible to avoid dependencies if we don't use this package.
   __conn = psycopg2.extras.DictConnection(dsn)
   schema = RasConfig.get('global', 'schema', False)
@@ -95,12 +96,16 @@ def sql(sqlquery, *params):
 
 def sqlrow(sqlquery, *params):
   """Return an single row  with the given query"""
+  import psycopg2
   conn = __dbconn()
   c = conn.cursor()
   #params = list(params)
   log.debug("SQL: %s ", sqlquery)
   log.debug("Params: %s", params)
-  c.execute(sqlquery, params)
+  try: c.execute(sqlquery, params)
+  except psycopg2.ProgrammingError, e:
+    raise YamlHtmlError("SQL Failure: %s -- %s" % ( sqlquery % params, e), e)
+
   out = c.fetchone()
   c.close()
   return out
@@ -138,12 +143,20 @@ def run(inputData, outputFileName):
   inputData['data']['sqlrow'] = sqlrow
   inputData['data']['__file__'] = templatefilename #Jinja doesn't understand this field by default.
   inputData['data']['now'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+  inputData['data']['environ'] = os.environ
   
   tempInput = tempfile.NamedTemporaryFile(suffix='.html')
   tempInput.write(template.render(**inputData['data'])) #Render the template to pure html.
   tempInput.flush()
   #tempInput.seek(0); print tempInput.read() #Uncomment for debugging.
   
+  if RasConfig.getBool('global', 'debug'):
+    debugoutput="/tmp/" + os.path.basename(tempInput.name)+".html"
+    f=file(debugoutput,"w")
+    tempInput.seek(0)
+    f.write(tempInput.read())
+    f.close()
+    
   wkpdfHandle=os.system("wkhtmltopdf -q '%s' '%s' 2>/dev/null " % (tempInput.name, outputFileName))
   #os.chdir(curdir)
   return True

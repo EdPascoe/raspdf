@@ -93,6 +93,7 @@ def main():
   if options.xxpdf is None:
     setattr(options,'xxpdf', RasConfig.getBool('global','xxpdf'))
 
+
   #Do the imports AFTER logging has been set up.
   import RascalPDF, RasConfig 
 
@@ -103,6 +104,8 @@ def main():
     else:
       print __version__
     sys.exit(0)
+
+  RasConfig.set('global','debug',options.debug)
     
   if options.outputfile:
     outfile = options.outputfile
@@ -144,6 +147,7 @@ def main():
     os.system("xdg-open %s" % (outfile))
 
   zmodemterms = [x.strip() for x in RasConfig.get('global','zmodemterm').split(",")]
+
 
   if options.web or (options.zmodem and RasConfig.getBool('global','noterraterm') and os.environ['TERM'] not in zmodemterms):
     import shutil, pwd

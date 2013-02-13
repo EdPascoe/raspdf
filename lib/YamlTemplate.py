@@ -28,8 +28,8 @@ class YamlTemplateError(Exception):
 def run(inputh, output):
   """Imports the yaml document and based on the document type hands the contents over to the correct module
      inputh should be a filehandle to read the yaml data from.
-     output should be a filehandle. If it has the .name attrib (eg a NamedTemporaryFile) then this is 
-     provided to the YamlHandler to write to. otherwise a temp file is used internally.  
+     output should be a filehandle. If it has the .name attrib (eg a NamedTemporaryFile) then this is
+     provided to the YamlHandler to write to. otherwise a temp file is used internally.
   """
   rawdata = inputh.read()
   documentData = yaml.load(rawdata) #Read in everything from the yaml file and convert to a structure.
@@ -41,21 +41,26 @@ def run(inputh, output):
   #  f.write(yaml.dump(documentData))
   #  f.close()
   #  os.chmod("/tmp/mytemplate.yml", 0666)
-    
+
   if not documentData.has_key("template"):
-      raise YamlTemplateError("The template file is valid YAML but does not have a key called 'template'")
+    raise YamlTemplateError("The template file is valid YAML but does not have a key called 'template'")
   template = documentData['template']
   fatalException = YamlTemplateError
   if template.endswith("html"):
     import YamlHtml
     yamlHandler = YamlHtml
     fatalException = YamlHtml.YamlHtmlError
-  else:    
-      import YamlOffice  #Import as late as possible so we don't crash if openoffice is not installed.
-      yamlHandler = YamlOffice
-      fatalException = YamlOffice.YamlOfficeException
-      #The old perl system used this: system("/usr/local/rascalprinting_test/yamloffice -o $t $vvv < $tf");
+  else:
+    #import YamlOffice  #Import as late as possible so we don't crash if openoffice is not installed.
+    #  yamlHandler = YamlOffice
+    import YamlOfficeBin #Temporary hack to use known working copy of Yamloffice until we get the calc bug fixed.
+    yamlHandler = YamlOfficeBin
+
+    fatalException = YamlOfficeBin.YamlOfficeBinException
+    #The old perl system used this: system("/usr/local/rascalprinting_test/yamloffice -o $t $vvv < $tf");
   try:
+    if hasattr(yamlHandler,'setRaw'):
+      yamlHandler.setRaw(rawdata)
     if hasattr(output, 'name'):
       return yamlHandler.run(inputData=documentData, outputFileName=output.name)
     else: #Must be a stringIO buffer. Create a temp file then read it back into the buffer.
@@ -69,4 +74,3 @@ def run(inputh, output):
       return ret
   except fatalException, e:
     raise YamlTemplateError(e)
-
