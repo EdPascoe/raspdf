@@ -35,7 +35,7 @@ __status__ = "Production"
 ### Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ### Copyright 2007-2010 Dag Wieers <dag@wieers.com>
 
-import getopt, sys, os, glob, time, socket, subprocess
+import getopt, sys, os, glob, time, socket, subprocess, os.path
 
 #TSF Imports
 import types, logging
@@ -370,7 +370,7 @@ class Options:
     self.template = None
     self.timeout = 6
     self.verbose = 0
-    self.yaml = None
+    self.yaml = {}
 
     ### Get options from the commandline
     try:
@@ -607,8 +607,8 @@ class Convertor:
         else:
           error("Failed to connect to %s (pid=%s) in %d seconds.\n%s" % (oobin, ooproc.pid, op.timeout, e))
       except Exception, e:
-        raise
         error("Launch of %s failed.\n%s" % (oobin, e))
+        raise
 
     if not unocontext:
       die(251, "Unable to connect or start own listener. Aborting.")
@@ -675,9 +675,9 @@ class Convertor:
       ### Load inputfile
       inputprops = (
           PropertyValue("Hidden", 0, True, 0),
-          PropertyValue("ReadOnly", 0, True, 0),
-          PropertyValue("FilterOptions", 0, op.importfilter, 0),
       )
+      #    PropertyValue("FilterOptions", 0, op.importfilter, 0),
+      #    PropertyValue("ReadOnly", 0, True, 0), -- If you put this line in inputprops the document is readonly and no change will EVER be saved.
 
       inputurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(inputfn))
       doc = self.desktop.loadComponentFromURL(inputurl , "_blank", 0, inputprops)
@@ -707,33 +707,39 @@ class Convertor:
         self.docUpdateCallback(doc)
 
       ### Update document links
-      try:
-        doc.updateLinks()
-      except AttributeError:
-        # the document doesn't implement the XLinkUpdate interface
-        pass
-
-      ### Update document indexes
-      try:
-        doc.refresh()
-        indexes = doc.getDocumentIndexes()
-      except AttributeError:
-        # the document doesn't implement the XRefreshable and/or
-        # XDocumentIndexesSupplier interfaces
-        pass
-      else:
-        for i in range(0, indexes.getCount()):
-          indexes.getByIndex(i).update()
+#!#      try:
+#!#        doc.updateLinks()
+#!#      except AttributeError:
+#!#        # the document doesn't implement the XLinkUpdate interface
+#!#        pass
+#!#
+#!#      ### Update document indexes
+#!#      try:
+#!#        doc.refresh()
+#!#        indexes = doc.getDocumentIndexes()
+#!#      except AttributeError:
+#!#        # the document doesn't implement the XRefreshable and/or
+#!#        # XDocumentIndexesSupplier interfaces
+#!#        pass
+#!#      else:
+#!#        for i in range(0, indexes.getCount()):
+#!#          indexes.getByIndex(i).update()
 
       ### Write outputfile
-      outputprops = [
-#                PropertyValue( "FilterData" , 0, ( PropertyValue( "SelectPdfVersion" , 0, 1 , uno.getConstantByName( "com.sun.star.beans.PropertyState.DIRECT_VALUE" ) ) ), uno.getConstantByName( "com.sun.star.beans.PropertyState.DIRECT_VALUE" ) ),
-          PropertyValue("FilterData", 0, uno.Any("[]com.sun.star.beans.PropertyValue", tuple(op.exportfilter),), 0),
-          PropertyValue("FilterName", 0, outputfmt.filter, 0),
-#                PropertyValue( "SelectionOnly", 0, True, 0 ),
-          PropertyValue("OutputStream", 0, OutputStream(), 0),
-          PropertyValue("Overwrite", 0, True, 0),
-      ]
+#!#      outputprops = [
+#!##                PropertyValue( "FilterData" , 0, ( PropertyValue( "SelectPdfVersion" , 0, 1 , uno.getConstantByName( "com.sun.star.beans.PropertyState.DIRECT_VALUE" ) ) ), uno.getConstantByName( "com.sun.star.beans.PropertyState.DIRECT_VALUE" ) ),
+#!#          PropertyValue("FilterData", 0, uno.Any("[]com.sun.star.beans.PropertyValue", tuple(op.exportfilter),), 0),
+#!#          PropertyValue("FilterName", 0, outputfmt.filter, 0),
+#!##                PropertyValue( "SelectionOnly", 0, True, 0 ),
+#!#          PropertyValue("OutputStream", 0, OutputStream(), 0),
+#!#          PropertyValue("Overwrite", 0, True, 0),
+#!#      ]
+      ### Write outputfile
+      outputprops = (
+              PropertyValue( "FilterName" , 0, outputfmt.filter , 0 ),
+              PropertyValue( "Overwrite" , 0, True , 0 ),
+              PropertyValue( "OutputStream", 0, OutputStream(), 0),
+             )
 
       if outputfmt.filter == 'Text (encoded)':
         outputprops.append(PropertyValue("FilterFlags", 0, "UTF8, LF", 0))
@@ -952,10 +958,6 @@ class DocUpdater:
         cell = sheet.getCellRangeByName(fieldname)
         log.debug("Cell %s", cell)
         log.debug("Get by string: cell: %s", cell.getString())
-        cell.String = "zzzzzzzzzzzzzzzzzz"
-        r = sheet.getCellRangeByName(fieldname).setString(str(value))
-        r = sheet.getCellRangeByName(fieldname).setFormula("Boom goes the dynamite")
-        log.debug("setString result: %s", r)
     except UnoException, e: #Probably means the cell name doesn't exist
       log.info("Could not find field %s value: %s Error %s", fieldname, value, e)
       pass
