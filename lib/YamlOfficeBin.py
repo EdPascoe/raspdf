@@ -29,5 +29,6 @@ def run(inputData, outputFileName):
   inputconf.seek(0)
   exefile = os.path.join(os.path.dirname(__file__), "yamloffice.bin")
   os.system("%s -o %s < %s" % (exefile, outputFileName, inputconf.name ) )
+  inputconf.close()
   return True
 
