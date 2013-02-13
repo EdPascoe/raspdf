@@ -27,6 +27,9 @@ def run(inputData, outputFileName):
   inputconf.write(raw)
   inputconf.flush()
   inputconf.seek(0)
+  #Relax the permissions or the libre office backend wont be able to write to the file.
+  os.chmod(inputconf.name,0666)
+  os.chmod(outputFileName,0666)
   exefile = os.path.join(os.path.dirname(__file__), "yamloffice.bin")
   os.system("%s -o %s < %s" % (exefile, outputFileName, inputconf.name ) )
   inputconf.close()
