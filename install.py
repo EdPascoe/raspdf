@@ -52,7 +52,12 @@ pip = os.path.join(destenv, "bin/pip")
 
 #Sigh. Some companies ( *cough* Cummins *cough) have political/corporate stupididty issues preventing them from running anything newer than RHES5 which means python 2.4 only.
 #This allows us to customise the requirements for older versions of python.
-requirements_file = "install/requirements.%s.%s.txt" % (sys.version_info.major, sys.version_info.minor)
+try:
+  requirements_file = "install/requirements.%s.%s.txt" % (sys.version_info.major, sys.version_info.minor)
+except AttributeError: #Work around issues with older versions of python.
+  v = sys.version_info
+  requirements_file = "install/requirements.%s.%s.txt" % (v[0], v[1])
+  
 if not os.path.exists(requirements_file):
   requirements_file = "install/requirements.txt"
 
