@@ -154,6 +154,13 @@ def load(configfile='xmmail.conf', defaults={'smtpserver': '127.0.0.1', 'templat
       if len(p) == 1: continue #We can't handle single words
       xmmail.set('global', p[0].lower(), p[1]) #Rascal has a creepy obsession with uppercase variables.
 
+
+  templates =  get('global', 'templates', default='')
+  destdirs = []
+  for d in templates.split(":"): 
+    d = d.strip()
+    __appendIfNotExists(d, searchLocations) 
+
 if __name__ == "__main__":
   #Enable logging
   formatter = logging.Formatter("%(levelname)s %(module)s:%(lineno)d: %(message)s")
@@ -171,5 +178,6 @@ if __name__ == "__main__":
   print get('global','azzzsmtpserver' , False)
   print get('global','templates' , False)
   print get('global','SERVER' , False)
+  print "searchLocations: ", searchLocations
 
 
