@@ -51,7 +51,6 @@ def getVersion():
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
 
-#xxprint -p Stores -d pdfwrite
   usage = "Usage: %prog [<options>] \n" + __doc__+"\n"
   parser = optparse.OptionParser(usage)
   parser.add_option("-C", "--config", dest="config", type="string", default="xmmail.conf", help="Config file location")
@@ -184,7 +183,7 @@ def main():
 
   if options.printer or options.realprinter:
     printer = (options.realprinter, options.printer)[not options.realprinter] 
-    pipe = Popen("lp -d %s" % (printer) , shell=True, stdin=PIPE).stdin
+    pipe = Popen("lp -d %s >&1 " % (printer) , shell=True, stdin=PIPE).stdin
     outhandle.flush()
     outhandle.seek(0)
     pipe.write(outhandle.read())
