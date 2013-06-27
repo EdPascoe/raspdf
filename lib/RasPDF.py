@@ -51,6 +51,7 @@ def getVersion():
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
 
+#xxprint -p Stores -d pdfwrite
   usage = "Usage: %prog [<options>] \n" + __doc__+"\n"
   parser = optparse.OptionParser(usage)
   parser.add_option("-C", "--config", dest="config", type="string", default="xmmail.conf", help="Config file location")
@@ -66,6 +67,7 @@ def main():
   parser.add_option("--tty", dest="tty", type="string", help="The running TTY to conenct to for zmodem")
   parser.add_option("-x", "--xxpdf", dest="xxpdf", action="store_true", help='Use xxpdf defaults including the broken A4 page size of 8.19" x 12.36" instead of 8.27" x 11.69"  ')
   parser.add_option("-d", "--printer", dest="printer", type="string", help='Send the pdf to given cups printer')
+  parser.add_option("-p", "--realprinter", dest="realprinter", type="string", default=False, help='The replacement for -d for use when called as: xxprint -p Stores -d pdfwrite')
   parser.add_option("--to", dest="to", action="append", help="Address to send the mail to. May be specified multiple times or addresses may be comma separated.")
   parser.add_option("--cc", dest="cc", action="append", help="Addresses for the cc list. Same usage as --to")
   parser.add_option("--bcc", dest="bcc", action="append", help="Addresses for the bcc list. Same usage as --to")
@@ -180,8 +182,9 @@ def main():
       cmdstr = cmd + " < %s > %s " % (options.tty, options.tty)
       os.system(cmdstr)
 
-  if options.printer:
-    pipe = Popen("lp -d %s" % (options.printer) , shell=True, stdin=PIPE).stdin
+  if options.printer or options.realprinter:
+    printer = (options.realprinter, options.printer)[not options.realprinter] 
+    pipe = Popen("lp -d %s" % (printer) , shell=True, stdin=PIPE).stdin
     outhandle.flush()
     outhandle.seek(0)
     pipe.write(outhandle.read())
