@@ -17,6 +17,7 @@ __status__ = "Production"
 
 import yaml, tempfile, os
 import logging
+import RasConfig
 
 log = logging.getLogger()
 
@@ -32,6 +33,16 @@ def run(inputh, output):
      provided to the YamlHandler to write to. otherwise a temp file is used internally.
   """
   rawdata = inputh.read()
+  if RasConfig.getBool('global', 'debugsave'):
+    t = tempfile.NamedTemporaryFile(suffix='')
+    fname = t.name + ".save.yml"
+    f=file(fname,"w")
+    inputh.seek(0)
+    f.write(inputh.read())
+    f.close()
+    t.close()
+    inputh.seek(0)
+
   documentData = yaml.load(rawdata) #Read in everything from the yaml file and convert to a structure.
   #Only uncomment when doing some really low level debugging.
   #if log.level >= logging.DEBUG:

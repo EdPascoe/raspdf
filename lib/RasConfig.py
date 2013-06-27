@@ -112,7 +112,7 @@ def getBool(section, option, default=False):
   if v is None:
     return default
   if isinstance(v, basestring): v= v.lower()
-  if v == "false" or v == "0" or v == False or v == "no" or v == "off" or v == "disabled":
+  if v == "false" or v == "0" or v == False or v == "no" or v == "off" or v == "disabled" or v == "None":
     return False
   else:
     return True

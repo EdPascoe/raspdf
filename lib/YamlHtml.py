@@ -94,21 +94,25 @@ def sql(sqlquery, *params):
   c.execute(sqlquery, params)
   return c
 
-def sqlrow(sqlquery, *params):
+def sqlrow(sqlquery, *params, **keywords):
   """Return an single row  with the given query"""
   import psycopg2
   conn = __dbconn()
   c = conn.cursor()
   #params = list(params)
-  log.debug("SQL: %s ", sqlquery)
-  log.debug("Params: %s", params)
+  #log.debug("SQL: %s ", sqlquery)
+  #log.debug("Params: %s", params)
   try: c.execute(sqlquery, params)
   except psycopg2.ProgrammingError, e:
     raise YamlHtmlError("SQL Failure: %s -- %s" % ( sqlquery % params, e), e)
 
   out = c.fetchone()
   c.close()
-  return out
+  #log.debug("Result: %s", out)
+  if out is None:
+    return keywords.get('default',{})
+  else:
+    return out
 
 def run(inputData, outputFileName):
   """Used when calling as a library from another module.
