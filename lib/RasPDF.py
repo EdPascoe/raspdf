@@ -183,7 +183,7 @@ def main():
 
   if options.printer or options.realprinter:
     printer = (options.realprinter, options.printer)[not options.realprinter] 
-    pipe = Popen("lp -d %s >&1 " % (printer) , shell=True, stdin=PIPE).stdin
+    pipe = Popen("lp -d %s -s " % (printer) , shell=True, stdin=PIPE).stdin
     outhandle.flush()
     outhandle.seek(0)
     pipe.write(outhandle.read())
