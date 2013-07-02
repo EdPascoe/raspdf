@@ -3,4 +3,4 @@
 #Usually called using something like: xxprint -p Stores -d pdfwrite
 #Note that the pdfwrite option is ignored. It is assumed that cups will handle the pdf conversion automatically.
 d=$(dirname $0)
-exec $d/raspdf $*
+exec $d/raspdf -x $*
