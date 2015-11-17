@@ -41,6 +41,13 @@ right margins have to checked by hand.
  {$FONTNAME("arialn.ttf")}{$SETCOLOR(0,0,0.42)}
  {$SF(11)}This is the arial narrow font 11 point{$SF(12)}
  {$SETCOLOR(0,0,0)}{$FONTNAME("courier")}
+
+
+
+              {$FONTNAME("code39u.ttf")}{$SF(24)}BARCODE - CODE 39{$SF(12)}
+ {$SETCOLOR(0,0,0)}{$FONTNAME("courier")} From http://www.fonts2u.com/category.html?id=70
+
+
  {$FONTNAME("isabella.ttf")}{$SETCOLOR(0,0,0.42)}
  {$SF(12)}This is the isabella font{$SF(12)}
 {$FONTNAME("courier")}{$SF(12)}
