@@ -72,8 +72,9 @@ def main():
   parser.add_option("--bcc", dest="bcc", action="append", help="Addresses for the bcc list. Same usage as --to")
   parser.add_option("--from", dest="mailfrom", type="string", help="Address to send the mail from. Read receipts will be sent back here if requested.")
   parser.add_option("-s", "--s", "--subject", dest="subject", default="", help="Message subject")
-  parser.add_option("--message", dest="message", default="", help="Message body")
+  parser.add_option("-m", "--message", dest="message", default="", help="Message body (If starts with a slash will be taken as filename for html body)")
   parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", help="Request a read receipt on any outgoing email.")
+  parser.add_option("-n", "--noattach",  dest="noattach", action="store_true", help="Do not attach any pdf report. (For using as a command line email program) ")
 
   (options, args) = parser.parse_args()
 
@@ -193,11 +194,16 @@ def main():
     import RasEmail
     outhandle.flush()
     outhandle.seek(0)
+    ishtml = False
     if options.message: 
-      bodyhtml = "<pre>" + options.message + "</pre>"
+      if options.message[0] == "/": #Must be a filename
+        bodyhtml = file(options.message).read()
+      else:
+        bodyhtml = "<pre>" + options.message + "</pre>"
     else:
       bodyhtml = None
     msg = RasEmail.createEmail(tolist=options.to, subject=options.subject, mailfrom=options.mailfrom, bodyhtml=bodyhtml, bodytext=options.message, readreceipt=options.readreceipt, cclist=options.cc, bcclist=options.bcc)
-    RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
+    if not options.noattach:
+      RasEmail.addAttachements(msg, (outhandle, 'report.pdf', 'application/pdf'))
     RasEmail.sendMail(tolist=options.to, mailfrom=options.mailfrom, msg=msg, cclist=options.cc, bcclist=options.bcc)
 
