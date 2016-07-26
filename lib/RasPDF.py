@@ -17,7 +17,7 @@ import logging
 import optparse
 import os, sys, time, tempfile, os.path
 import reportlab.lib.pagesizes
-import smtplib
+import smtplib, string, random
 import socket
 from subprocess import *
 from cStringIO import StringIO
@@ -48,6 +48,11 @@ def getVersion():
     raise
   return "RasPDF PDF library. Exported Source No version number."
 
+def pwgen(pwlen=16):
+  l = len(string.ascii_letters) - 1
+  return "".join([ string.ascii_letters[random.randint(0,l)] for i in xrange(pwlen) ])
+
+
 def main():
   """Main harness. The actual work is all done in RascalPDF"""
 
@@ -75,6 +80,7 @@ def main():
   parser.add_option("-m", "--message", dest="message", default="", help="Message body (If starts with a slash will be taken as filename for html body)")
   parser.add_option("--rr", "--readreceipt", dest="readreceipt", action="store_true", help="Request a read receipt on any outgoing email.")
   parser.add_option("-n", "--noattach",  dest="noattach", action="store_true", help="Do not attach any pdf report. (For using as a command line email program) ")
+  parser.add_option("--secure", dest="secure", action="store_true", help="Set flags preventing alteration and add a write password. **SNAKEOIL**")
 
   (options, args) = parser.parse_args()
 
@@ -90,11 +96,13 @@ def main():
   if options.debug:  log.setLevel(logging.DEBUG)
 
   import RasConfig
-  RasConfig.load(options.config, {'readreceipt': 'False', 'xxpdf': 'True', 'noterraterm': 'True', 'zmodemterm': 'vt220, vt220a, vt320' } )
+  RasConfig.load(options.config, {'readreceipt': 'False', 'xxpdf': 'True', 'noterraterm': 'True', 'zmodemterm': 'vt220, vt220a, vt320', 'secure': 'False' } )
   if options.readreceipt is None:
     setattr(options,'readreceipt',RasConfig.getBool('global','readreceipt'))
   if options.xxpdf is None:
     setattr(options,'xxpdf', RasConfig.getBool('global','xxpdf'))
+  if options.secure is None:
+    setattr(options,'secure',RasConfig.getBool('global','secure'))
 
 
   #Do the imports AFTER logging has been set up.
@@ -113,7 +121,7 @@ def main():
     
   if options.outputfile:
     outfile = options.outputfile
-    outhandle = file(outfile,"w")
+    outhandle = file(outfile,"w+")
   elif options.zmodem:
     tf = tempfile.NamedTemporaryFile(suffix='_auto.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     outfile = tf.name
@@ -134,6 +142,20 @@ def main():
 
   stop = time.time()
   log.info("Render time: %s seconds" % (stop - start))
+
+  if options.secure:
+    prepdf = tempfile.NamedTemporaryFile(suffix='presecure.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
+    postpdf = tempfile.NamedTemporaryFile(suffix='postecure.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
+    outhandle.seek(0)
+    prepdf.write(outhandle.read())
+    prepdf.flush()
+    os.system("pdftk %s output %s owner_pw %s allow printing 2>&1" % ( prepdf.name, postpdf.name, pwgen() ))
+    outhandle.seek(0)
+    outhandle.truncate()
+    postpdf.seek(0)
+    outhandle.write(postpdf.read())
+    prepdf.close()
+    postpdf.close()
   
   if options.evince:
     if outfile is None:
