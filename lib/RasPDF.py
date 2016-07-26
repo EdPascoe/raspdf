@@ -150,10 +150,12 @@ def main():
     prepdf.write(outhandle.read())
     prepdf.flush()
     os.system("pdftk %s output %s owner_pw %s allow printing 2>&1" % ( prepdf.name, postpdf.name, pwgen() ))
+    
     outhandle.seek(0)
     outhandle.truncate()
     postpdf.seek(0)
     outhandle.write(postpdf.read())
+    outhandle.flush()
     prepdf.close()
     postpdf.close()
   
@@ -194,6 +196,7 @@ def main():
     f=file(options.tty)
     f.readline()
     os.system("clear")
+
   elif options.zmodem:
     if not options.tty: options.tty=os.environ['TTY']
     resetstr = "; sleep 3 ; clear < %s > %s " % (options.tty, options.tty) #Complicated hack because sz has a habit of messing up the screen.
