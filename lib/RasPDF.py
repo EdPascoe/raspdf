@@ -144,6 +144,7 @@ def main():
   log.info("Render time: %s seconds" % (stop - start))
 
   if options.secure:
+    outhandle.flush()
     prepdf = tempfile.NamedTemporaryFile(suffix='presecure.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     postpdf = tempfile.NamedTemporaryFile(suffix='postecure.pdf' ) #Temporary file with the work auto in it to force auto starting in terraterm.
     outhandle.seek(0)
